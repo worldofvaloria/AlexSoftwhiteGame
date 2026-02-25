@@ -55,8 +55,30 @@ button {
 <button onclick="improveRelations()">Улучшить отношения (-5 золота)</button>
 <button onclick="insultCountry()">Оскорбить</button>
 
-<div id="chatBox" style="margin-top:20px; min-height:60px;"></div>
-    <button onclick="nextTurn()">Следующий ход</button>
+<div id="chatBox"
+     style="
+        margin-top:20px;
+        height:180px;
+        overflow-y:auto;
+        border:1px solid #444;
+        padding:10px;
+     ">
+</div>
+
+<button onclick="toggleHistory()" style="margin-top:10px;">
+    История сообщений
+</button>
+
+<div id="historyPanel"
+     style="
+        display:none;
+        margin-top:15px;
+        max-height:250px;
+        overflow-y:auto;
+        border:1px solid #666;
+        padding:10px;
+        background:#1a1a1a;
+     ">
 </div>
 
 <script>
@@ -173,7 +195,16 @@ function addAllianceMessage(countryName) {
         <button onclick="rejectAlliance('${countryName}')">Отклонить</button>
     `;
 
-    chat.prepend(block);
+    chat.append(block);
+    chat.scrollTop = chat.scrollHeight;
+
+    messageHistory.push(countryName + " предлагает вам союз.");
+
+    if (chat.children.length > 15) {
+        chat.removeChild(chat.firstChild);
+    }
+
+    updateHistoryPanel();
 }
     function acceptAlliance(name) {
     let player = game.countries[game.selectedCountry];
@@ -274,13 +305,47 @@ function insultCountry() {
     updateRelationDisplay();
 }
 
+let messageHistory = [];
+
 function addChatMessage(text) {
     let chat = document.getElementById("chatBox");
-    chat.innerHTML =
-        "<p>" + text + "</p>" + chat.innerHTML;
+
+    let p = document.createElement("p");
+    p.innerText = text;
+
+    chat.append(p);
+    chat.scrollTop = chat.scrollHeight;
+
+    messageHistory.push(text);
+
+    // лимит 15 сообщений в основном чате
+    if (chat.children.length > 15) {
+        chat.removeChild(chat.firstChild);
+    }
+
+    updateHistoryPanel();
 }
 render();
+function updateHistoryPanel() {
+    let panel = document.getElementById("historyPanel");
+    panel.innerHTML = "";
 
+    messageHistory.slice().reverse().forEach(msg => {
+        let p = document.createElement("p");
+        p.innerText = msg;
+        panel.appendChild(p);
+    });
+}
+
+function toggleHistory() {
+    let panel = document.getElementById("historyPanel");
+
+    if (panel.style.display === "none") {
+        panel.style.display = "block";
+    } else {
+        panel.style.display = "none";
+    }
+}
 </script>
 
 </body>
