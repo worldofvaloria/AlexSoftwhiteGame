@@ -158,23 +158,25 @@ const engine = {
     }
     this.updateUI(); // Обновляем цифры на экране
 },
+       updateUI() {
         const p = world.countries[world.playerCountry];
-        
-        // Дата и название страны
-        document.getElementById('current-date').innerText = `${world.date.day} ${world.months[world.date.month]} ${world.date.year} г.`;
-        document.getElementById('player-country-name').innerText = world.playerCountry;
-        
-        // Статистика в шапке и боковой панели
-        document.getElementById('top-gold').innerText = p.gold.toFixed(1);
-        document.getElementById('stat-pop').innerText = p.pop.toLocaleString();
-        document.getElementById('stat-army').innerText = p.army;
-        document.getElementById('stat-stab').innerText = p.stab + "%";
-        
-        // Расчет месячного баланса для интерфейса
-        let monthlyBalance = (p.pop * 0.01) - (p.army * 0.05);
-        document.getElementById('stat-income').innerText = (monthlyBalance >= 0 ? "+" : "") + monthlyBalance.toFixed(1);
 
-        // Обновление списка дипломатии (создаем опции, если их нет)
+        // Дата и название страны
+        document.getElementById('date').innerText = `${world.date.day} ${["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"][world.date.month]} ${world.date.year}`;
+        document.getElementById('country-name').innerText = world.playerCountry;
+
+        // Статистика в шапке и боковой панели
+        document.getElementById('gold').innerText = Math.floor(p.gold);
+        document.getElementById('pop').innerText = p.pop.toLocaleString();
+        document.getElementById('army').innerText = p.army;
+        document.getElementById('stab').innerText = p.stab + "%";
+
+        // Расчет месячного баланса для интерфейса
+        let income = (p.pop * 0.01) + (p.buildings.market || 0) * 0.5;
+        let upkeep = (p.army * 0.05);
+        let monthlyBalance = (income - upkeep).toFixed(1);
+        document.getElementById('income-display').innerText = `(${monthlyBalance >= 0 ? "+" : ""}${monthlyBalance})`;
+    },
         this.syncDiplomacyList();
     },
 
