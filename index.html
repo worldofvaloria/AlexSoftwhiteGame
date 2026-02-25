@@ -137,23 +137,27 @@ const engine = {
     },
 
     processMonth() {
-        for (let name in world.countries) {
-            let c = world.countries[name];
-            
-            // Базовая экономика
-            let income = (c.pop * 0.01); 
-            let upkeep = (c.army * 0.05);
-            c.gold += (income - upkeep);
-            
-            c.pop += Math.floor(c.pop * 0.001);
-        }
-        if (typeof runAIBehavior === "function") {
-            runAIBehavior(); 
-        }
-    },
-
-    // Обновление всего, что видит игрок на экране
-    updateUI() {
+    for (let name in world.countries) {
+        let c = world.countries[name];
+        
+        // Считаем бонусы от построек
+        let marketBonus = (c.buildings.market || 0) * 0.5; // Каждый рынок дает +0.5 золота
+        let farmBonus = (c.buildings.farm || 0) * 0.002;  // Каждая ферма ускоряет рост населения
+        
+        // Экономика с учетом зданий
+        let income = (c.pop * 0.01) + marketBonus; 
+        let upkeep = (c.army * 0.05);
+        c.gold += (income - upkeep);
+        
+        // Рост населения с учетом ферм
+        c.pop += Math.floor(c.pop * (0.001 + farmBonus));
+    }
+    
+    if (typeof runAIBehavior === "function") {
+        runAIBehavior(); 
+    }
+    this.updateUI(); // Обновляем цифры на экране
+},
         const p = world.countries[world.playerCountry];
         
         // Дата и название страны
