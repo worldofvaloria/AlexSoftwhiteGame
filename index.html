@@ -1,144 +1,99 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>AlexSoftwhiteGame</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Strategy</title>
 <style>
 body {
-    margin: 0;
-    font-family: sans-serif;
-    background: #0e0e0e;
+    background: #111;
     color: white;
+    font-family: Arial;
     text-align: center;
 }
 
-.screen {
-    display: none;
-    padding: 40px;
-}
-
-.active {
-    display: block;
+#game {
+    margin-top: 40px;
 }
 
 button {
-    padding: 15px 30px;
-    margin: 10px;
-    font-size: 16px;
-    background: #222;
+    padding: 10px 20px;
+    margin-top: 20px;
+    background: #ff5722;
+    border: none;
     color: white;
-    border: 1px solid white;
+    cursor: pointer;
 }
 </style>
 </head>
+
 <body>
 
-<!-- Главное меню -->
-<div id="menu" class="screen active">
-    <h1>Pax Realis</h1>
-    <p>Выберите временной период</p>
+<h1>World Strategy</h1>
 
-    <button onclick="selectEra('Ancient')">Древний мир</button>
-    <button onclick="selectEra('Medieval')">Средневековье</button>
-    <button onclick="selectEra('Modern')">Новое время</button>
+<div id="game">
+    <h2>Год: <span id="year"></span></h2>
 
-    <br><br>
-    <button onclick="startGame()">Начать игру</button>
+    <div id="countryPanel">
+        <h3 id="countryName"></h3>
+        <p>Население: <span id="pop"></span></p>
+        <p>Золото: <span id="gold"></span></p>
+        <p>Армия: <span id="army"></span></p>
+    </div>
+
+    <button onclick="nextTurn()">Следующий ход</button>
 </div>
 
-<!-- Игровой экран -->
-<div id="game" class="screen">
-    <h2 id="eraTitle"></h2>
-
-    <div style="position:relative; display:inline-block; max-width:100%;">
-
-        <!-- Карта -->
-<div id="map"></div>
-
 <script>
-let selectedEra = null;
-let turn = 1;
 
-const countries = {
-    Ukraine: {
-        population: 40,
-        economy: 30
-    }
+const game = {
+    year: 1200,
+    selectedCountry: "France",
+    countries: {}
 };
 
-function selectEra(era) {
-    selectedEra = era;
-    alert("Вы выбрали: " + era);
+function createCountry(name, population, gold, army) {
+    return {
+        name,
+        population,
+        gold,
+        army,
+        stability: 50
+    };
 }
 
-function startGame() {
-    if (!selectedEra) {
-        alert("Выберите эпоху!");
-        return;
-    }
-
-    document.getElementById("menu").classList.remove("active");
-    document.getElementById("game").classList.add("active");
-    document.getElementById("eraTitle").innerText = "Эпоха: " + selectedEra;
-}
+game.countries = {
+    France: createCountry("France", 8, 5, 3),
+    England: createCountry("England", 5, 4, 2)
+};
 
 function nextTurn() {
-    turn++;
-    document.getElementById("turnInfo").innerText = "Ход: " + turn;
+    game.year++;
+
+    for (let name in game.countries) {
+        let c = game.countries[name];
+
+        c.gold += Math.floor(c.population * 0.2);
+        c.population += c.population * 0.01;
+    }
+
+    render();
 }
 
-/* 🔥 ГЛАВНОЕ — ЗАГРУЗКА КАРТЫ */
+function render() {
 
-d3.json("world.geojson").then(function(data) {
+    document.getElementById("year").innerText = game.year;
 
-    const width = 1000;
-    const height = 500;
+    const c = game.countries[game.selectedCountry];
 
-    const svg = d3.select("#map")
-        .append("svg")
-        .attr("width", "100%")
-        .attr("viewBox", `0 0 ${width} ${height}`)
-        .style("background", "#111");
+    document.getElementById("countryName").innerText = c.name;
+    document.getElementById("pop").innerText = c.population.toFixed(1);
+    document.getElementById("gold").innerText = c.gold;
+    document.getElementById("army").innerText = c.army;
+}
 
-    const projection = d3.geoMercator()
-        .scale(130)
-        .translate([width / 2, height / 1.5]);
+render();
 
-    const path = d3.geoPath().projection(projection);
-
-    svg.selectAll("path")
-        .data(data.features)
-        .enter()
-        .append("path")
-        .attr("d", path)
-        .attr("fill", "#e0e0e0")
-        .attr("stroke", "#333")
-        .attr("stroke-width", 0.5)
-        .style("cursor", "pointer")
-        .on("click", function(event, d) {
-
-            d3.selectAll("path").attr("fill", "#e0e0e0");
-            d3.select(this).attr("fill", "#ff5722");
-
-            const name = d.properties.name;
-
-            document.getElementById("countryPanel").style.display = "block";
-            document.getElementById("countryName").innerText = name;
-
-            if (countries[name]) {
-                document.getElementById("pop").innerText = countries[name].population;
-                document.getElementById("eco").innerText = countries[name].economy;
-            } else {
-                document.getElementById("pop").innerText = "—";
-                document.getElementById("eco").innerText = "—";
-            }
-
-        });
-
-});
 </script>
 
-<script src="https://d3js.org/d3.v7.min.js"></script>
 </body>
 </html>
