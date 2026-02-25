@@ -1,23 +1,50 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>AlexSoftwhiteGame</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            margin: 0;
-            background: black;
-            overflow: hidden;
-        }
-        canvas {
-            display: block;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>AlexSoftwhiteGame</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    margin: 0;
+    background: black;
+    overflow: hidden;
+    touch-action: none;
+}
+canvas {
+    display: block;
+}
+.controls {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: 60px 60px 60px;
+    grid-template-rows: 60px 60px;
+    gap: 10px;
+}
+button {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid white;
+    color: white;
+    font-size: 24px;
+    border-radius: 10px;
+}
+</style>
 </head>
 <body>
 
 <canvas id="game"></canvas>
+
+<div class="controls">
+    <div></div>
+    <button id="up">↑</button>
+    <div></div>
+    <button id="left">←</button>
+    <button id="down">↓</button>
+    <button id="right">→</button>
+</div>
 
 <script>
 const canvas = document.getElementById("game");
@@ -33,16 +60,30 @@ let player = {
     speed: 4
 };
 
-let keys = {};
+let move = {
+    up: false,
+    down: false,
+    left: false,
+    right: false
+};
 
-window.addEventListener("keydown", e => keys[e.key] = true);
-window.addEventListener("keyup", e => keys[e.key] = false);
+function setupButton(id, direction) {
+    const btn = document.getElementById(id);
+
+    btn.addEventListener("touchstart", () => move[direction] = true);
+    btn.addEventListener("touchend", () => move[direction] = false);
+}
+
+setupButton("up", "up");
+setupButton("down", "down");
+setupButton("left", "left");
+setupButton("right", "right");
 
 function update() {
-    if (keys["ArrowUp"]) player.y -= player.speed;
-    if (keys["ArrowDown"]) player.y += player.speed;
-    if (keys["ArrowLeft"]) player.x -= player.speed;
-    if (keys["ArrowRight"]) player.x += player.speed;
+    if (move.up) player.y -= player.speed;
+    if (move.down) player.y += player.speed;
+    if (move.left) player.x -= player.speed;
+    if (move.right) player.x += player.speed;
 }
 
 function draw() {
