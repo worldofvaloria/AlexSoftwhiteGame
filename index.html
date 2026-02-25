@@ -101,7 +101,7 @@ const engine = {
         for (let i = 0; i < steps; i++) {
             this.processDay();
         }
-        this.;
+       this.updateUI();
     },
 
    processDay() {
@@ -157,7 +157,7 @@ const engine = {
         runAIBehavior(); 
     }
     this.updateUI(); // Обновляем цифры на экране
-},
+
        updateUI() {
         const p = world.countries[world.playerCountry];
 
