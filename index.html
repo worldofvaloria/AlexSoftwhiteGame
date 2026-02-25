@@ -75,7 +75,9 @@ function createCountry(name) {
         army: 5,
         stability: 80,
         tech: 10,
-        relations: {}
+        relations: {},
+        allianceOffered: false,
+        allied: false
     };
 }
 
@@ -144,8 +146,11 @@ for (let name in game.countries) {
             let relation =
     game.countries[game.selectedCountry].relations[name];
 
-if (relation > 60) {
-    addChatMessage(name + " предлагает вам союз.");
+if (relation > 60 && !game.countries[name].allianceOffered) {
+
+    game.countries[name].allianceOffered = true;
+
+    addAllianceMessage(name);
 }
 
 if (relation < -60) {
@@ -156,7 +161,47 @@ if (relation < -60) {
 }
     render();
 }
+function addAllianceMessage(countryName) {
 
+    let chat = document.getElementById("chatBox");
+
+    let block = document.createElement("div");
+
+    block.innerHTML = `
+        <p>${countryName} предлагает вам союз.</p>
+        <button onclick="acceptAlliance('${countryName}')">Принять</button>
+        <button onclick="rejectAlliance('${countryName}')">Отклонить</button>
+    `;
+
+    chat.prepend(block);
+}
+    function acceptAlliance(name) {
+    let player = game.countries[game.selectedCountry];
+    let other = game.countries[name];
+
+    player.relations[name] = 100;
+    other.relations[game.selectedCountry] = 100;
+
+    other.allianceOffered = false;
+
+    addChatMessage(name + " теперь ваш союзник!");
+
+    render();
+}
+
+function rejectAlliance(name) {
+    let player = game.countries[game.selectedCountry];
+    let other = game.countries[name];
+
+    player.relations[name] -= 20;
+    other.relations[game.selectedCountry] -= 20;
+
+    other.allianceOffered = false;
+
+    addChatMessage("Вы отказались от союза с " + name + ".");
+
+    render();
+}
 function recruitArmy() {
     let c = game.countries[game.selectedCountry];
 
