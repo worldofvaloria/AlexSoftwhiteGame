@@ -46,8 +46,16 @@ button {
 
 <hr>
 
-<h3>Строительство</h3>
-<div id="constructionMenu"></div>
+<h3>
+    <button onclick="toggleConstruction()">
+        Строительство
+    </button>
+</h3>
+
+<div id="constructionPanel" style="display:none; margin-top:15px;">
+    <div id="constructionCategories"></div>
+    <div id="constructionMenu" style="margin-top:15px;"></div>
+</div>
 
 <hr>
 
@@ -471,7 +479,51 @@ function renderConstructionMenu() {
         menu.appendChild(document.createElement("br"));
     }
 }
+function toggleConstruction() {
+    const panel = document.getElementById("constructionPanel");
 
+    if (panel.style.display === "none") {
+        panel.style.display = "block";
+        renderConstructionCategories();
+    } else {
+        panel.style.display = "none";
+    }
+}
+
+function renderConstructionCategories() {
+    const categoriesDiv = document.getElementById("constructionCategories");
+    categoriesDiv.innerHTML = "";
+
+    const categories = [...new Set(
+        Object.values(buildingCatalog).map(b => b.category)
+    )];
+
+    categories.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.innerText = cat;
+        btn.onclick = () => renderBuildingsByCategory(cat);
+        categoriesDiv.appendChild(btn);
+        categoriesDiv.appendChild(document.createElement("br"));
+    });
+}
+
+function renderBuildingsByCategory(category) {
+    const menu = document.getElementById("constructionMenu");
+    menu.innerHTML = "";
+
+    for (let key in buildingCatalog) {
+        let building = buildingCatalog[key];
+
+        if (building.category === category) {
+            let btn = document.createElement("button");
+            btn.innerText = `${building.name} (${building.cost} золота)`;
+            btn.onclick = () => startConstruction(key);
+
+            menu.appendChild(btn);
+            menu.appendChild(document.createElement("br"));
+        }
+    }
+}
 function render() {
     const c = game.countries[game.selectedCountry];
 
