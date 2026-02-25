@@ -44,7 +44,18 @@ button {
         Нанять войска (-5 золота)
     </button>
 </div>
+<hr>
 
+<h3>Дипломатия</h3>
+
+<select id="diplomacyTarget" onchange="updateRelationDisplay()"></select>
+
+<p>Отношения: <span id="relationValue"></span></p>
+
+<button onclick="improveRelations()">Улучшить отношения (-5 золота)</button>
+<button onclick="insultCountry()">Оскорбить</button>
+
+<div id="chatBox" style="margin-top:20px; min-height:60px;"></div>
     <button onclick="nextTurn()">Следующий ход</button>
 </div>
 
@@ -71,8 +82,20 @@ function createCountry(name) {
 game.countries = {
     Valoria: createCountry("Valoria"),
     Norvind: createCountry("Norvind"),
-    Kharad: createCountry("Kharad")
+    Kharad: createCountry("Kharad"),
+    Elyndor: createCountry("Elyndor"),
+    Zareth: createCountry("Zareth")
 };
+
+// Инициализация отношений
+for (let name in game.countries) {
+    for (let other in game.countries) {
+        if (name !== other) {
+            game.countries[name].relations[other] =
+                Math.floor(Math.random() * 40) - 20; // от -20 до +20
+        }
+    }
+}
 
 function nextTurn() {
     game.year++;
@@ -123,6 +146,62 @@ function render() {
     document.getElementById("gold").innerText = c.gold;
     document.getElementById("army").innerText = c.army;
     document.getElementById("stability").innerText = c.stability.toFixed(0);
+updateDiplomacyUI();
+}
+    function updateDiplomacyUI() {
+    const select = document.getElementById("diplomacyTarget");
+    select.innerHTML = "";
+
+    for (let name in game.countries) {
+        if (name !== game.selectedCountry) {
+            let option = document.createElement("option");
+            option.value = name;
+            option.textContent = name;
+            select.appendChild(option);
+        }
+    }
+
+    updateRelationDisplay();
+}
+
+function updateRelationDisplay() {
+    let target = document.getElementById("diplomacyTarget").value;
+    let relation =
+        game.countries[game.selectedCountry].relations[target];
+
+    document.getElementById("relationValue").innerText = relation;
+}
+
+function improveRelations() {
+    let player = game.countries[game.selectedCountry];
+    let target = document.getElementById("diplomacyTarget").value;
+
+    if (player.gold >= 5) {
+        player.gold -= 5;
+        player.relations[target] += 10;
+
+        addChatMessage(target + " благодарит вас за поддержку.");
+    }
+
+    render();
+    updateRelationDisplay();
+}
+
+function insultCountry() {
+    let player = game.countries[game.selectedCountry];
+    let target = document.getElementById("diplomacyTarget").value;
+
+    player.relations[target] -= 15;
+
+    addChatMessage(target + " возмущены вашим поведением!");
+
+    updateRelationDisplay();
+}
+
+function addChatMessage(text) {
+    let chat = document.getElementById("chatBox");
+    chat.innerHTML =
+        "<p>" + text + "</p>" + chat.innerHTML;
 }
 render();
 
