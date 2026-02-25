@@ -1003,32 +1003,16 @@ button {
  </circle>
 </svg>
 
-        <!-- Невидимая зона Украины -->
-        <div onclick="selectCountry('Ukraine')" 
-             style="
-             position:absolute;
-             left:55%;
-             top:45%;
-             width:8%;
-             height:8%;
-             cursor:pointer;">
-        </div>
-
-    </div>
-
-    <div id="countryPanel" style="margin-top:20px; display:none;">
-        <h3 id="countryName"></h3>
-        <p>Население: <span id="pop"></span></p>
-        <p>Экономика: <span id="eco"></span></p>
-    </div>
-
-    <button onclick="nextTurn()">Следующий ход</button>
-    <p id="turnInfo">Ход: 1</p>
-</div>
-
 <script>
 let selectedEra = null;
 let turn = 1;
+
+const countries = {
+    Ukraine: {
+        population: 40,
+        economy: 30
+    }
+};
 
 function selectEra(era) {
     selectedEra = era;
@@ -1051,61 +1035,14 @@ function nextTurn() {
     document.getElementById("turnInfo").innerText = "Ход: " + turn;
 }
 
-const countries = {
-    Ukraine: {
-        population: 40,
-        economy: 30
-    }
-};
-
 function selectCountry(name) {
     const country = countries[name];
 
     document.getElementById("countryPanel").style.display = "block";
-document.getElementById("countryName").innerText =
-    country.id || "Страна";
+    document.getElementById("countryName").innerText = name;
+    document.getElementById("pop").innerText = country.population;
+    document.getElementById("eco").innerText = country.economy;
 }
-
-<script>
-let selectedEra = null;
-let turn = 1;
-
-function selectEra(era) {
-    selectedEra = era;
-}
-
-function nextTurn() {
-    turn++;
-    document.getElementById("turnInfo").innerText = "Ход: " + turn;
-}
-
-/* 🔥 ДОБАВЛЯЕМ НИЖЕ */
-
-let selectedCountryElement = null;
-
-function handleCountryClick(event) {
-    const country = event.target;
-
-    if (selectedCountryElement) {
-        selectedCountryElement.style.fill = "#e0e0e0";
-    }
-
-    selectedCountryElement = country;
-    country.style.fill = "#ff5722";
-
-    document.getElementById("countryPanel").style.display = "block";
-    document.getElementById("countryName").innerText =
-        country.id || "Страна";
-}
-
-window.onload = function () {
-    const paths = document.querySelectorAll("svg path");
-
-    paths.forEach(path => {
-        path.style.cursor = "pointer";
-        path.addEventListener("click", handleCountryClick);
-    });
-};
 </script>
 
 </body>
