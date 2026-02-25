@@ -50,7 +50,12 @@ button {
 <!-- Игровой экран -->
 <div id="game" class="screen">
     <h2 id="eraTitle"></h2>
-    <p>Игра запущена...</p>
+
+    <div style="overflow:auto; max-height:70vh; margin-bottom:20px;">
+        <img src="Political_World_CIA_World_Factbook_map_2005.svg" 
+             style="width:100%; height:auto;">
+    </div>
+
     <button onclick="nextTurn()">Следующий ход</button>
     <p id="turnInfo">Ход: 1</p>
 </div>
