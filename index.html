@@ -155,7 +155,119 @@ const game = {
     selectedCountry: "Valoria",
     countries: {}
 };
+const buildingCatalog = {
 
+    // 🪖 Военное
+    barracks: {
+        name: "Казармы",
+        category: "Военное",
+        cost: 18,
+        buildTime: 60
+    },
+
+    armory: {
+        name: "Арсенал",
+        category: "Военное",
+        cost: 22,
+        buildTime: 75
+    },
+
+    fortress: {
+        name: "Крепость",
+        category: "Военное",
+        cost: 30,
+        buildTime: 120
+    },
+
+
+    // 🎓 Образование
+    school: {
+        name: "Школа",
+        category: "Образование",
+        cost: 16,
+        buildTime: 50
+    },
+
+    university: {
+        name: "Университет",
+        category: "Образование",
+        cost: 28,
+        buildTime: 100
+    },
+
+
+    // 🎭 Культура
+    theater: {
+        name: "Театр",
+        category: "Культура",
+        cost: 12,
+        buildTime: 40
+    },
+
+    monument: {
+        name: "Монумент",
+        category: "Культура",
+        cost: 20,
+        buildTime: 70
+    },
+
+
+    // 💰 Экономика
+    market: {
+        name: "Рынок",
+        category: "Экономика",
+        cost: 14,
+        buildTime: 35
+    },
+
+    bank: {
+        name: "Банк",
+        category: "Экономика",
+        cost: 26,
+        buildTime: 80
+    },
+
+
+    // ⛏ Ресурсы
+    farm: {
+        name: "Ферма",
+        category: "Ресурсы",
+        cost: 10,
+        buildTime: 30
+    },
+
+    mine: {
+        name: "Шахта",
+        category: "Ресурсы",
+        cost: 15,
+        buildTime: 45
+    },
+
+    lumbermill: {
+        name: "Лесопилка",
+        category: "Ресурсы",
+        cost: 17,
+        buildTime: 50
+    }
+};
+    function startConstruction(buildingKey) {
+    let country = game.countries[game.selectedCountry];
+    let building = buildingCatalog[buildingKey];
+
+    if (country.gold < building.cost) {
+        alert("Недостаточно золота!");
+        return;
+    }
+
+    country.gold -= building.cost;
+
+    country.constructionQueue.push({
+        key: buildingKey,
+        daysLeft: building.buildTime
+    });
+
+    addChatMessage(`Начато строительство: ${building.name}`);
+}
 function createCountry(name) {
     return {
         name,
@@ -166,7 +278,10 @@ function createCountry(name) {
         tech: 10,
         relations: {},
         allianceOffered: false,
-        allied: false
+        allied: false,
+
+        buildings: {},           // построенные здания
+        constructionQueue: []    // очередь строительства
     };
 }
 
@@ -197,7 +312,21 @@ function nextTurn() {
 
         for (let name in game.countries) {
             let c = game.countries[name];
+// обработка строительства
+for (let i = c.constructionQueue.length - 1; i >= 0; i--) {
+    let item = c.constructionQueue[i];
+    item.daysLeft--;
 
+    if (item.daysLeft <= 0) {
+        let key = item.key;
+
+        c.buildings[key] = (c.buildings[key] || 0) + 1;
+
+        addChatMessage(`${buildingCatalog[key].name} построено!`);
+
+        c.constructionQueue.splice(i, 1);
+    }
+}
             // 📈 Доход за день
             let incomePerDay = (c.population * 0.4) / 365;
             let armyCostPerDay = (c.army * 0.3) / 365;
@@ -318,6 +447,25 @@ function recruitArmy() {
 
     render();
 }
+function renderConstructionMenu() {
+
+    const menu = document.getElementById("constructionMenu");
+    if (!menu) return;
+
+    menu.innerHTML = "";
+
+    for (let key in buildingCatalog) {
+
+        let building = buildingCatalog[key];
+
+        let btn = document.createElement("button");
+        btn.innerText = `${building.name} (${building.cost} золота)`;
+        btn.onclick = () => startConstruction(key);
+
+        menu.appendChild(btn);
+        menu.appendChild(document.createElement("br"));
+    }
+}
 
 function render() {
     const c = game.countries[game.selectedCountry];
@@ -346,6 +494,7 @@ document.getElementById("gold").innerText =
 document.getElementById("army").innerText = c.army;
     document.getElementById("stability").innerText = c.stability.toFixed(0);
 updateDiplomacyUI();
+renderConstructionMenu();
 }
     function updateDiplomacyUI() {
     const select = document.getElementById("diplomacyTarget");
@@ -383,7 +532,7 @@ function improveRelations() {
     }
 
     render();
-    updateRelationDisplay();
+    updateDiplomacyUI();
 }
 
 function insultCountry() {
