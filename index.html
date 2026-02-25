@@ -1062,9 +1062,8 @@ function selectCountry(name) {
     const country = countries[name];
 
     document.getElementById("countryPanel").style.display = "block";
-    document.getElementById("countryName").innerText = name;
-    document.getElementById("pop").innerText = country.population;
-    document.getElementById("eco").innerText = country.economy;
+document.getElementById("countryName").innerText =
+    country.id || "Страна";
 }
 
 <script>
