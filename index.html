@@ -122,23 +122,26 @@ function nextTurn() {
             c.army = Math.max(1, c.army - 1);
         }
     }
-// Дипломатическое поведение ИИ
+// 🔥 Реакция ИИ каждый ход
+// 🔥 Реакция ИИ каждый ход
 for (let name in game.countries) {
     if (name !== game.selectedCountry) {
 
-        let relation =
-            game.countries[name].relations[game.selectedCountry];
+        if (Math.random() < 0.3) {
 
-        // Если сильно ненавидят — портят отношения
-        if (relation < -40) {
-            game.countries[name].relations[game.selectedCountry] -= 5;
-            addChatMessage(name + " распространяет против вас пропаганду.");
-        }
+            let change = Math.floor(Math.random() * 11) - 5;
 
-        // Если любят — улучшают
-        if (relation > 40) {
-            game.countries[name].relations[game.selectedCountry] += 3;
-            addChatMessage(name + " предлагает укрепить союз.");
+            // меняем ОБЕ стороны
+            game.countries[name].relations[game.selectedCountry] += change;
+            game.countries[game.selectedCountry].relations[name] += change;
+
+            if (change > 0) {
+                addChatMessage(name + " улучшает отношения с вами.");
+            }
+
+            if (change < 0) {
+                addChatMessage(name + " ухудшает отношения с вами.");
+            }
         }
     }
 }
