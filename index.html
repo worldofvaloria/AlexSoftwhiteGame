@@ -46,24 +46,27 @@ button {
 <script>
 
 const game = {
-    year: 1200,
-    selectedCountry: "France",
+    year: 500,
+    selectedCountry: "Valoria",
     countries: {}
 };
 
-function createCountry(name, population, gold, army) {
+function createCountry(name) {
     return {
         name,
-        population,
-        gold,
-        army,
-        stability: 50
+        population: 10,
+        gold: 20,
+        army: 5,
+        stability: 80,
+        tech: 10,
+        relations: {}
     };
 }
 
 game.countries = {
-    France: createCountry("France", 8, 5, 3),
-    England: createCountry("England", 5, 4, 2)
+    Valoria: createCountry("Valoria"),
+    Norvind: createCountry("Norvind"),
+    Kharad: createCountry("Kharad")
 };
 
 function nextTurn() {
@@ -72,25 +75,50 @@ function nextTurn() {
     for (let name in game.countries) {
         let c = game.countries[name];
 
-        c.gold += Math.floor(c.population * 0.2);
-        c.population += c.population * 0.01;
+        // Экономика
+        let income = Math.floor(c.population * 0.4);
+        let armyCost = Math.floor(c.army * 0.3);
+
+        c.gold += income - armyCost;
+
+        // Рост населения
+        c.population += c.population * 0.015;
+
+        // Стабильность падает если нет золота
+        if (c.gold < 0) {
+            c.stability -= 5;
+        }
+
+        // Мятеж
+        if (c.stability < 30) {
+            c.army = Math.max(1, c.army - 1);
+        }
+    }
+
+    render();
+}
+
+function recruitArmy() {
+    let c = game.countries[game.selectedCountry];
+
+    if (c.gold >= 5) {
+        c.gold -= 5;
+        c.army += 1;
     }
 
     render();
 }
 
 function render() {
-
-    document.getElementById("year").innerText = game.year;
-
     const c = game.countries[game.selectedCountry];
 
+    document.getElementById("year").innerText = game.year;
     document.getElementById("countryName").innerText = c.name;
     document.getElementById("pop").innerText = c.population.toFixed(1);
     document.getElementById("gold").innerText = c.gold;
     document.getElementById("army").innerText = c.army;
+    document.getElementById("stability").innerText = c.stability.toFixed(0);
 }
-
 render();
 
 </script>
