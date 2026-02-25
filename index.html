@@ -129,11 +129,13 @@ function advanceTime(days) {
 
         let daysThisMonth = getDaysInMonth(game.date.month, game.date.year);
 
-        if (game.date.day + days <= daysThisMonth) {
+        let remainingDaysInMonth = daysThisMonth - game.date.day;
+
+        if (days <= remainingDaysInMonth) {
             game.date.day += days;
             days = 0;
         } else {
-            days -= (daysThisMonth - game.date.day + 1);
+            days -= (remainingDaysInMonth + 1);
             game.date.day = 1;
             game.date.month++;
 
@@ -187,66 +189,73 @@ for (let name in game.countries) {
 }
 
 function nextTurn() {
+
     let days = parseInt(document.getElementById("timeStep").value);
-advanceTime(days);
 
+    // --- Экономика и развитие по дням ---
+    for (let d = 0; d < days; d++) {
+
+        for (let name in game.countries) {
+            let c = game.countries[name];
+
+            // 📈 Доход за день
+            let incomePerDay = (c.population * 0.4) / 365;
+            let armyCostPerDay = (c.army * 0.3) / 365;
+
+            c.gold += incomePerDay - armyCostPerDay;
+
+            // 👥 Рост населения (1.5% в год)
+            c.population += (c.population * 0.015) / 365;
+
+            // ⚖ Стабильность падает при отрицательном золоте
+            if (c.gold < 0) {
+                c.stability -= 5 / 365;
+            }
+
+            // 🔥 Мятеж
+            if (c.stability < 30) {
+                c.army = Math.max(1, c.army - (1 / 365));
+            }
+        }
+    }
+
+    // 📅 Двигаем календарь
+    advanceTime(days);
+
+    // 🔥 Реакция ИИ каждый ход
     for (let name in game.countries) {
-        let c = game.countries[name];
+        if (name !== game.selectedCountry) {
 
-        // Экономика
-        let income = Math.floor(c.population * 0.4);
-        let armyCost = Math.floor(c.army * 0.3);
+            if (Math.random() < 0.3) {
 
-        c.gold += income - armyCost;
+                let change = Math.floor(Math.random() * 11) - 5;
 
-        // Рост населения
-        c.population += c.population * 0.015;
+                game.countries[name].relations[game.selectedCountry] += change;
+                game.countries[game.selectedCountry].relations[name] += change;
 
-        // Стабильность падает если нет золота
-        if (c.gold < 0) {
-            c.stability -= 5;
-        }
+                if (change > 0) {
+                    addChatMessage(name + " улучшает отношения с вами.");
+                }
 
-        // Мятеж
-        if (c.stability < 30) {
-            c.army = Math.max(1, c.army - 1);
+                if (change < 0) {
+                    addChatMessage(name + " ухудшает отношения с вами.");
+                }
+
+                let relation =
+                    game.countries[game.selectedCountry].relations[name];
+
+                if (relation > 60 && !game.countries[name].allianceOffered) {
+                    game.countries[name].allianceOffered = true;
+                    addAllianceMessage(name);
+                }
+
+                if (relation < -60) {
+                    addChatMessage(name + " готовится к конфликту.");
+                }
+            }
         }
     }
-// 🔥 Реакция ИИ каждый ход
-for (let name in game.countries) {
-    if (name !== game.selectedCountry) {
 
-        if (Math.random() < 0.3) {
-
-            let change = Math.floor(Math.random() * 11) - 5;
-
-            // меняем ОБЕ стороны
-            game.countries[name].relations[game.selectedCountry] += change;
-            game.countries[game.selectedCountry].relations[name] += change;
-
-            if (change > 0) {
-                addChatMessage(name + " улучшает отношения с вами.");
-            }
-
-            if (change < 0) {
-                addChatMessage(name + " ухудшает отношения с вами.");
-            }
-            let relation =
-    game.countries[game.selectedCountry].relations[name];
-
-if (relation > 60 && !game.countries[name].allianceOffered) {
-
-    game.countries[name].allianceOffered = true;
-
-    addAllianceMessage(name);
-}
-
-if (relation < -60) {
-    addChatMessage(name + " готовится к конфликту.");
-}
-        }
-    }
-}
     render();
 }
 function addAllianceMessage(countryName) {
