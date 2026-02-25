@@ -177,8 +177,6 @@ const engine = {
         let monthlyBalance = (income - upkeep).toFixed(1);
         document.getElementById('income-display').innerText = `(${monthlyBalance >= 0 ? "+" : ""}${monthlyBalance})`;
     },
-        this.syncDiplomacyList();
-    },
 
     syncDiplomacyList() {
         const dipSelect = document.getElementById('dip-target');
