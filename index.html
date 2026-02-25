@@ -104,42 +104,39 @@ const engine = {
         this.updateUI();
     },
 
-    processDay() {
-    world.date.day++;
-    
-    // Проходим по всем странам и двигаем стройку (Шаг 3.4)
-    for (let name in world.countries) {
-        let c = world.countries[name];
-        // Идем по очереди с конца к началу
-        for (let i = c.constructionQueue.length - 1; i >= 0; i--) {
-            let job = c.constructionQueue[i];
-            job.daysLeft--; // Уменьшаем время стройки на 1 день
+   processDay() {
+        world.date.day++;
+        
+        for (let name in world.countries) {
+            let c = world.countries[name];
+            for (let i = c.constructionQueue.length - 1; i >= 0; i--) {
+                let job = c.constructionQueue[i];
+                job.daysLeft--;
 
-            if (job.daysLeft <= 0) {
-                let bId = job.id;
-                // Добавляем готовое здание в список страны
-                c.buildings[bId] = (c.buildings[bId] || 0) + 1;
-                // Удаляем из очереди
-                c.constructionQueue.splice(i, 1);
-                
-                if (name === world.playerCountry) {
-                    logEvent(`Ура! Постройка ${buildingCatalog[bId].name} завершена.`);
+                if (job.daysLeft <= 0) {
+                    let bId = job.id;
+                    c.buildings[bId] = (c.buildings[bId] || 0) + 1;
+                    c.constructionQueue.splice(i, 1);
+                    
+                    if (name === world.playerCountry) {
+                        logEvent(`Ура! Постройка ${buildingCatalog[bId].name} завершена.`);
+                    }
                 }
             }
         }
-    }
 
-    // Логика смены месяца (у тебя она уже есть)
-    if (world.date.day > 30) {
-        world.date.day = 1;
-        world.date.month++;
-        // ... и так далее ...
-        this.processMonth();
-    }
-}
+        if (world.date.day > 30) {
+            world.date.day = 1;
+            world.date.month++;
+            if (world.date.month > 11) {
+                world.date.month = 0;
+                world.date.year++;
+            }
+            this.processMonth();
+        }
+    },
 
-    // Логика каждого месяца
-  processMonth() {
+    processMonth() {
         for (let name in world.countries) {
             let c = world.countries[name];
             
@@ -148,15 +145,12 @@ const engine = {
             let upkeep = (c.army * 0.05);
             c.gold += (income - upkeep);
             
-            // Естественный рост населения
             c.pop += Math.floor(c.pop * 0.001);
         }
-
-        // Вызов ИИ (Шаг 2.3)
         if (typeof runAIBehavior === "function") {
             runAIBehavior(); 
         }
-    }, // <-- Проверь, чтобы тут была запятая, если дальше есть другие функции
+    },
 
     // Обновление всего, что видит игрок на экране
     updateUI() {
