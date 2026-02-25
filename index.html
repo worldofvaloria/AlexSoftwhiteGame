@@ -1067,6 +1067,46 @@ function selectCountry(name) {
     document.getElementById("eco").innerText = country.economy;
 }
 
+<script>
+let selectedEra = null;
+let turn = 1;
+
+function selectEra(era) {
+    selectedEra = era;
+}
+
+function nextTurn() {
+    turn++;
+    document.getElementById("turnInfo").innerText = "Ход: " + turn;
+}
+
+/* 🔥 ДОБАВЛЯЕМ НИЖЕ */
+
+let selectedCountryElement = null;
+
+function handleCountryClick(event) {
+    const country = event.target;
+
+    if (selectedCountryElement) {
+        selectedCountryElement.style.fill = "#e0e0e0";
+    }
+
+    selectedCountryElement = country;
+    country.style.fill = "#ff5722";
+
+    document.getElementById("countryPanel").style.display = "block";
+    document.getElementById("countryName").innerText =
+        country.id || "Страна";
+}
+
+window.onload = function () {
+    const paths = document.querySelectorAll("svg path");
+
+    paths.forEach(path => {
+        path.style.cursor = "pointer";
+        path.addEventListener("click", handleCountryClick);
+    });
+};
 </script>
 
 </body>
