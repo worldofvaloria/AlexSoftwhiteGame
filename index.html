@@ -186,6 +186,12 @@ const engine = {
             }
             this.processMonth();
         }
+       // Шанс появления события (1% каждый день)
+    if (name === world.playerCountry && Math.random() < 0.01) {
+        const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+        event.effect(c); // Применяем эффект к стране
+        logEvent(`📜 СОБЫТИЕ: ${event.text}`); // Выводим новость
+    }
     },
 
     processMonth() {
@@ -347,6 +353,24 @@ function startBuilding(id) {
         logEvent("Недостаточно золота для начала стройки!");
     }
 }  
+    const randomEvents = [
+    { 
+        text: "В Valoria богатый урожай! Крестьяне жертвуют часть зерна в казну.", 
+        effect: (p) => { p.gold += 150; p.stab += 2; } 
+    },
+    { 
+        text: "Вспышка неизвестной лихорадки косит население.", 
+        effect: (p) => { p.pop = Math.floor(p.pop * 0.95); p.stab -= 10; } 
+    },
+    { 
+        text: "Странствующий рыцарь предлагает свои услуги вашему войску.", 
+        effect: (p) => { p.army += 200; p.stab += 5; } 
+    },
+    { 
+        text: "Пожар в столичном квартале! Требуются средства на восстановление.", 
+        effect: (p) => { p.gold -= 100; p.stab -= 5; } 
+    }
+];
 function recruitArmy() {
     let p = world.countries[world.playerCountry];
     if (p.gold >= 5) {
