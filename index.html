@@ -156,9 +156,9 @@ const engine = {
     if (typeof runAIBehavior === "function") {
         runAIBehavior(); 
     }
-    this.updateUI(); // Обновляем цифры на экране
-
-       updateUI() {
+    this.updateUI(); // строка 159
+    }, // строка 160 (запятая!)
+    updateUI() { // строка 161
         const p = world.countries[world.playerCountry];
 
         // 1. Дата и название страны (строки 165-166)
