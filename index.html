@@ -290,6 +290,17 @@ function startBuilding(id) {
         logEvent("Недостаточно золота для начала стройки!");
     }
 }  
+function recruitArmy() {
+    let p = world.countries[world.playerCountry];
+    if (p.gold >= 5) {
+        p.gold -= 5;
+        p.army += 100; // Нанимаем 100 солдат
+        engine.updateUI();
+        logEvent("Вы наняли новый полк. Сила армии растёт!");
+    } else {
+        logEvent("Недостаточно золота для найма армии!");
+    }
+}
 // === КОНЕЦ ВСТАВКИ ===
  
 // 5. САМЫЙ ВАЖНЫЙ МОМЕНТ: Первичный запуск
