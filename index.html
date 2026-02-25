@@ -166,7 +166,11 @@ const game = {
         year: 500
     },
     selectedCountry: "Valoria",
-    countries: {}
+    countries: {},
+    ui: {
+    constructionOpen: false,
+    selectedCategory: null
+}
 };
 const buildingCatalog = {
 
@@ -482,11 +486,12 @@ function renderConstructionMenu() {
 function toggleConstruction() {
     const panel = document.getElementById("constructionPanel");
 
-    if (panel.style.display === "none") {
-        panel.style.display = "block";
+    game.ui.constructionOpen = !game.ui.constructionOpen;
+
+    panel.style.display = game.ui.constructionOpen ? "block" : "none";
+
+    if (game.ui.constructionOpen) {
         renderConstructionCategories();
-    } else {
-        panel.style.display = "none";
     }
 }
 
@@ -508,6 +513,8 @@ function renderConstructionCategories() {
 }
 
 function renderBuildingsByCategory(category) {
+    game.ui.selectedCategory = category;
+
     const menu = document.getElementById("constructionMenu");
     menu.innerHTML = "";
 
@@ -551,7 +558,19 @@ document.getElementById("gold").innerText =
 document.getElementById("army").innerText = c.army;
     document.getElementById("stability").innerText = c.stability.toFixed(0);
 updateDiplomacyUI();
-renderConstructionMenu();
+// Восстановление состояния строительства
+const panel = document.getElementById("constructionPanel");
+
+if (game.ui.constructionOpen) {
+    panel.style.display = "block";
+    renderConstructionCategories();
+
+    if (game.ui.selectedCategory) {
+        renderBuildingsByCategory(game.ui.selectedCategory);
+    }
+} else {
+    panel.style.display = "none";
+}
 }
     function updateDiplomacyUI() {
     const select = document.getElementById("diplomacyTarget");
