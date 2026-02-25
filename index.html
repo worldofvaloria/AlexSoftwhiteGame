@@ -250,16 +250,6 @@ function runAIBehavior() {
         }
     }
 }
-
-// === КОНЕЦ ВСТАВКИ ===
-<div id="build-modal" class="panel" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; width:400px; background:#1a1a20; border:2px solid #ff5722; padding:20px; box-shadow: 0 0 20px #000;">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #444; pb: 10px;">
-        <h3 style="margin:0;">Доступные постройки</h3>
-        <button onclick="closeConstruction()" style="background:none; border:none; color:red; font-size:20px; cursor:pointer; margin:0; padding:0;">✖</button>
-    </div>
-    <div id="build-list" style="margin-top:15px; max-height: 300px; overflow-y: auto;">
-        </div>
-</div>
  function openConstruction() {
     document.getElementById('build-modal').style.display = 'block';
     const list = document.getElementById('build-list');
@@ -295,12 +285,22 @@ function startBuilding(id) {
     } else {
         logEvent("Недостаточно золота для начала стройки!");
     }
-}   
+}  
+// === КОНЕЦ ВСТАВКИ ===
+ 
 // 5. САМЫЙ ВАЖНЫЙ МОМЕНТ: Первичный запуск
 window.onload = () => {
     engine.updateUI();
     logEvent("Мир вступил в эпоху 500-го года. Ваше правление началось.");
 };
 </script>
+      <div id="build-modal" class="panel" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; width:400px; background:#1a1a20; border:2px solid #ff5722; padding:20px; box-shadow: 0 0 20px #000;">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #444; pb: 10px;">
+        <h3 style="margin:0;">Доступные постройки</h3>
+        <button onclick="closeConstruction()" style="background:none; border:none; color:red; font-size:20px; cursor:pointer; margin:0; padding:0;">✖</button>
+    </div>
+    <div id="build-list" style="margin-top:15px; max-height: 300px; overflow-y: auto;">
+        </div>
+</div>
 </body>
 </html>
