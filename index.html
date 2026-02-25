@@ -33,7 +33,7 @@
     <header>
         <div id="date">1 Января 500 г.</div>
         <div id="country-name">Загрузка...</div>
-        <div>Золото: <span id="gold">0</span></div>
+        <div>Золото: <span id="top-gold">0</span></div>
     </header>
 
   <aside id="stats-panel" class="panel">
@@ -41,7 +41,7 @@
     <div>Население: <span id="pop">Загрузка...</span></div>
     <div>Армия: <span id="army">0</span></div>
     <div>Стабильность: <span id="stab">0</span>%</div>
-    <div>Золото: <span id="gold">0</span> <small id="income-display" style="color: #66ff66;"></small></div>
+    <div>Месячный баланс: <small id="income-display" style="color: #66ff66;"></small></div>
     <hr>
     <button onclick="recruitArmy()">Нанять полк (5 золота)</button>
     <button onclick="openConstruction()">Строительство</button>
@@ -101,7 +101,7 @@ const engine = {
         for (let i = 0; i < steps; i++) {
             this.processDay();
         }
-        this.updateUI();
+        this.;
     },
 
    processDay() {
@@ -161,21 +161,26 @@ const engine = {
        updateUI() {
         const p = world.countries[world.playerCountry];
 
-        // Дата и название страны
-        document.getElementById('date').innerText = `${world.date.day} ${["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"][world.date.month]} ${world.date.year}`;
+        // 1. Дата и название страны (строки 165-166)
+        document.getElementById('date').innerText = `${world.date.day} ${["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"][world.date.month]} ${world.date.year}`;
         document.getElementById('country-name').innerText = world.playerCountry;
 
-        // Статистика в шапке и боковой панели
-        document.getElementById('gold').innerText = Math.floor(p.gold);
+        // 2. Статистика: Казна (в шапку) и прочее (строки 169-172)
+        document.getElementById('top-gold').innerText = Math.floor(p.gold); // Теперь казна справа сверху
         document.getElementById('pop').innerText = p.pop.toLocaleString();
         document.getElementById('army').innerText = p.army;
         document.getElementById('stab').innerText = p.stab + "%";
 
-        // Расчет месячного баланса для интерфейса
+        // 3. Расчет и вывод ТОЛЬКО дохода (в боковую панель)
         let income = (p.pop * 0.01) + (p.buildings.market || 0) * 0.5;
         let upkeep = (p.army * 0.05);
         let monthlyBalance = (income - upkeep).toFixed(1);
-        document.getElementById('income-display').innerText = `(${monthlyBalance >= 0 ? "+" : ""}${monthlyBalance})`;
+
+        const incomeElem = document.getElementById('income-display');
+        incomeElem.innerText = `(${monthlyBalance >= 0 ? "+" : ""}${monthlyBalance})`;
+        incomeElem.style.color = monthlyBalance >= 0 ? "#66ff66" : "#ff4444"; // Зеленый или красный
+        
+        this.syncDiplomacyList();
     },
 
     syncDiplomacyList() {
