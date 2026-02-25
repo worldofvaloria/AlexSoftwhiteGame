@@ -80,16 +80,76 @@ button {
         background:#1a1a1a;
      ">
 </div>
-
+<select id="timeStep">
+    <option value="1">1 день</option>
+    <option value="7">1 неделя</option>
+    <option value="30">1 месяц</option>
+    <option value="90">3 месяца</option>
+    <option value="180">6 месяцев</option>
+    <option value="365">1 год</option>
+</select>
 <button onclick="nextTurn()" style="margin-top:20px;">
     Следующий ход
 </button>
 </div>
 
 <script>
+const months = [
+    "Январь", "Февраль", "Март", "Апрель",
+    "Май", "Июнь", "Июль", "Август",
+    "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+];
+function isLeapYear(year) {
+    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
 
+function getDaysInMonth(month, year) {
+
+    const daysInMonths = [
+        31,
+        isLeapYear(year) ? 29 : 28,
+        31,
+        30,
+        31,
+        30,
+        31,
+        31,
+        30,
+        31,
+        30,
+        31
+    ];
+
+    return daysInMonths[month - 1];
+}
+
+function advanceTime(days) {
+
+    while (days > 0) {
+
+        let daysThisMonth = getDaysInMonth(game.date.month, game.date.year);
+
+        if (game.date.day + days <= daysThisMonth) {
+            game.date.day += days;
+            days = 0;
+        } else {
+            days -= (daysThisMonth - game.date.day + 1);
+            game.date.day = 1;
+            game.date.month++;
+
+            if (game.date.month > 12) {
+                game.date.month = 1;
+                game.date.year++;
+            }
+        }
+    }
+}
 const game = {
-    year: 500,
+    date: {
+        day: 1,
+        month: 1,
+        year: 500
+    },
     selectedCountry: "Valoria",
     countries: {}
 };
@@ -127,7 +187,8 @@ for (let name in game.countries) {
 }
 
 function nextTurn() {
-    game.year++;
+    let days = parseInt(document.getElementById("timeStep").value);
+advanceTime(days);
 
     for (let name in game.countries) {
         let c = game.countries[name];
@@ -252,7 +313,10 @@ function recruitArmy() {
 function render() {
     const c = game.countries[game.selectedCountry];
 
-    document.getElementById("year").innerText = game.year;
+    document.getElementById("year").innerText =
+    game.date.day + " " +
+    months[game.date.month - 1] + " " +
+    game.date.year;
     document.getElementById("countryName").innerText = c.name;
     document.getElementById("pop").innerText = c.population.toFixed(1);
     document.getElementById("gold").innerText = c.gold;
