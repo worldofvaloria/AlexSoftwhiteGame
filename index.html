@@ -123,7 +123,6 @@ function nextTurn() {
         }
     }
 // 🔥 Реакция ИИ каждый ход
-// 🔥 Реакция ИИ каждый ход
 for (let name in game.countries) {
     if (name !== game.selectedCountry) {
 
@@ -142,6 +141,16 @@ for (let name in game.countries) {
             if (change < 0) {
                 addChatMessage(name + " ухудшает отношения с вами.");
             }
+            let relation =
+    game.countries[game.selectedCountry].relations[name];
+
+if (relation > 60) {
+    addChatMessage(name + " предлагает вам союз.");
+}
+
+if (relation < -60) {
+    addChatMessage(name + " готовится к конфликту.");
+}
         }
     }
 }
