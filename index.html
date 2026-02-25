@@ -1060,7 +1060,14 @@ window.addEventListener("load", function () {
             selectedCountryElement = path;
             path.style.fill = "#ff5722";
 
-            alert(path.id);
+            let countryName =
+    path.id ||
+    path.getAttribute("name") ||
+    path.getAttribute("title") ||
+    path.getAttribute("aria-label") ||
+    "Неизвестная страна";
+
+alert(countryName);
         });
     });
 });
