@@ -186,11 +186,11 @@ const engine = {
             }
             this.processMonth();
         }
-       // Шанс появления события (1% каждый день)
+     // Шанс появления обычного события (1% каждый день)
     if (name === world.playerCountry && Math.random() < 0.01) {
         const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
-        event.effect(c); // Применяем эффект к стране
-        logEvent(`📜 СОБЫТИЕ: ${event.text}`); // Выводим новость
+        event.effect(c); // c — это текущая страна в цикле
+        logEvent(`📜 СОБЫТИЕ: ${event.text}`);
     }
     },
 
