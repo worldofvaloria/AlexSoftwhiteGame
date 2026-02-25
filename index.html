@@ -114,7 +114,7 @@ const engine = {
     },
 
     // Логика каждого месяца
-   processMonth() {
+  processMonth() {
         for (let name in world.countries) {
             let c = world.countries[name];
             
@@ -127,9 +127,11 @@ const engine = {
             c.pop += Math.floor(c.pop * 0.001);
         }
 
-        // === ВОТ ЭТА СТРОКА — ЭТО ШАГ 2.3 ===
-        runAIBehavior(); 
-    },
+        // Вызов ИИ (Шаг 2.3)
+        if (typeof runAIBehavior === "function") {
+            runAIBehavior(); 
+        }
+    }, // <-- Проверь, чтобы тут была запятая, если дальше есть другие функции
 
     // Обновление всего, что видит игрок на экране
     updateUI() {
