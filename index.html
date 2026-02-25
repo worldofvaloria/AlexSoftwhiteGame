@@ -36,16 +36,16 @@
         <div>Золото: <span id="top-gold" class="stat-val">0</span></div>
     </header>
 
-    <aside id="stats-panel" class="panel">
-        <h3>Состояние страны</h3>
-        <div class="stat-line"><span>Население:</span> <span id="stat-pop" class="stat-val">0</span></div>
-        <div class="stat-line"><span>Армия:</span> <span id="stat-army" class="stat-val">0</span></div>
-        <div class="stat-line"><span>Стабильность:</span> <span id="stat-stab" class="stat-val">0</span></div>
-        <div class="stat-line"><span>Доход (мес):</span> <span id="stat-income" class="stat-val">0</span></div>
-        <hr>
-        <button onclick="recruitArmy()">Нанять полк (5 золота)</button>
-        <button onclick="openConstruction()">Строительство</button>
-    </aside>
+  <aside id="stats-panel" class="panel">
+    <h3>Состояние страны</h3>
+    <div>Население: <span id="pop">Загрузка...</span></div>
+    <div>Армия: <span id="army">0</span></div>
+    <div>Стабильность: <span id="stab">0</span>%</div>
+    <div>Золото: <span id="gold">0</span> <small id="income-display" style="color: #66ff66;"></small></div>
+    <hr>
+    <button onclick="recruitArmy()">Нанять полк (5 золота)</button>
+    <button onclick="openConstruction()">Строительство</button>
+</aside>
 
     <main id="main-view">
         <div id="map-or-diplomacy" class="panel" style="flex-grow: 1;">
