@@ -34,11 +34,16 @@ button {
     <h2>Год: <span id="year"></span></h2>
 
     <div id="countryPanel">
-        <h3 id="countryName"></h3>
-        <p>Население: <span id="pop"></span></p>
-        <p>Золото: <span id="gold"></span></p>
-        <p>Армия: <span id="army"></span></p>
-    </div>
+    <h3 id="countryName"></h3>
+    <p>Население: <span id="pop"></span></p>
+    <p>Золото: <span id="gold"></span></p>
+    <p>Армия: <span id="army"></span></p>
+    <p>Стабильность: <span id="stability"></span></p>
+
+    <button onclick="recruitArmy()">
+        Нанять войска (-5 золота)
+    </button>
+</div>
 
     <button onclick="nextTurn()">Следующий ход</button>
 </div>
