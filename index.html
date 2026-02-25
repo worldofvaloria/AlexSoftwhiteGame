@@ -2,401 +2,1276 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>World of Valoria — стратегия</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
     <style>
     :root {
-        --gold: #ffcc66;
-        --bg-dark: #121215;
-        --panel-bg: #1e1e22;
-        --text-color: #e0d7bc;
-        --accent: #ff5722;
+        --bg: #0c0e12;
+        --bg-subtle: #111318;
+        --surface: #161a22;
+        --surface-2: #1c212c;
+        --border: #2a3142;
+        --border-soft: #1e2430;
+        --text: #e8ecf1;
+        --text-muted: #7d8796;
+        --text-faint: #5c6574;
+        --accent: #7c9cbf;
+        --accent-strong: #9bb8dc;
+        --warm: #c9a86c;
+        --warm-dim: #8b7355;
+        --success: #4a9b6d;
+        --danger: #c75c5c;
+        --gold: #d4a853;
+        --radius: 14px;
+        --radius-sm: 10px;
+        --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-display: 'Playfair Display', Georgia, serif;
+        --shadow: 0 8px 32px rgba(0,0,0,0.35);
+        --shadow-card: 0 4px 20px rgba(0,0,0,0.2);
     }
 
-    body { 
-        background-color: var(--bg-dark); 
-        color: var(--text-color); 
-        font-family: 'Georgia', serif; 
-        margin: 0; 
-        display: flex; 
-        justify-content: center; 
-        padding: 20px;
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 14px;
+        line-height: 1.55;
+        background-image: radial-gradient(ellipse 120% 80% at 50% -20%, rgba(124, 156, 191, 0.06), transparent 50%);
     }
 
-    #game-container { 
-        width: 950px; 
-        display: grid; 
-        grid-template-columns: 300px 1fr; 
-        gap: 15px; 
+    .app {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 28px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
     }
 
-    header { 
-        grid-column: 1 / span 2; 
-        background: #2a2a2e; 
-        padding: 15px; 
-        border-radius: 8px; 
-        border: 1px solid #444; 
-        display: flex; 
-        justify-content: space-between; 
+    /* Header */
+    .header {
+        display: flex;
         align-items: center;
-        color: var(--gold);
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+        padding: 18px 26px;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-card);
+        border-left: 3px solid var(--warm);
+    }
+    .header-left { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .header-country { font-family: var(--font-display); font-weight: 600; font-size: 1.2em; color: var(--text); letter-spacing: 0.02em; }
+    .header-date { color: var(--text-muted); font-size: 0.9em; margin-top: 2px; }
+    .header-stats { display: flex; gap: 24px; align-items: center; }
+    .header-stat { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .header-stat .value { font-weight: 600; color: var(--warm); }
+    .header-actions { display: flex; gap: 12px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); }
+    .btn:hover { background: var(--border); color: #fff; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+    .btn-ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
+    .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+
+    /* Leader card */
+    .leader-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 18px;
+        background: var(--surface-2);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-soft);
+    }
+    .leader-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(145deg, var(--warm-dim), var(--warm)); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1); }
+    .leader-name { font-weight: 600; color: var(--text); font-size: 0.95em; }
+    .leader-title { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* Layout */
+    .layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+    /* Мобильные: удобный заход с телефона */
+    @media (max-width: 640px) {
+        body { font-size: 15px; padding: 0; -webkit-text-size-adjust: 100%; }
+        .app { padding: 12px 14px 24px; max-width: 100%; gap: 16px; padding-left: max(14px, env(safe-area-inset-left)); padding-right: max(14px, env(safe-area-inset-right)); padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+        .header { padding: 14px 16px; gap: 12px; flex-direction: column; align-items: stretch; }
+        .header-left { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .header-stats { flex-wrap: wrap; gap: 14px; }
+        .header-actions { flex-wrap: wrap; gap: 8px; }
+        .header-actions .btn { min-height: 44px; flex: 1 1 auto; }
+        .btn { min-height: 44px; padding: 12px 16px; font-size: 14px; }
+        .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; padding-bottom: 4px; margin-bottom: 14px; }
+        .tab { flex-shrink: 0; padding: 12px 14px; }
+        .card { padding: 16px; }
+        main.card { padding: 16px; }
+        .log { height: 200px; }
+        .advisor-chat { height: 160px; }
+        .dip-chat { height: 160px; }
+        .dip-actions .btn { min-height: 44px; }
+        .advisor-input-row { flex-direction: column; }
+        .advisor-input-row textarea { min-height: 72px; font-size: 16px; }
+        .ai-key-input { max-width: 100%; font-size: 16px; }
+        .modal { max-width: 100%; margin: 10px; max-height: 85vh; border-radius: var(--radius); }
+        .modal-overlay { padding: 10px; align-items: flex-start; }
+        .build-item { padding: 14px; }
     }
 
-    .panel { 
-        background: var(--panel-bg); 
-        padding: 15px; 
-        border-radius: 8px; 
-        border: 2px solid #5d4a37; 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    .sidebar { display: flex; flex-direction: column; gap: 18px; }
+    .card {
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius);
+        padding: 22px;
+        box-shadow: var(--shadow-card);
     }
+    .card.resources { border-left: 3px solid var(--success); }
+    .card.buildings { border-left: 3px solid var(--warm); }
+    .card.queue { border-left: 3px solid var(--accent); }
+    .card-title { font-size: 11px; font-weight: 600; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border-soft); font-size: 13px; }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row .label { color: var(--text-muted); }
+    .stat-row .val { font-weight: 600; color: var(--text); }
 
-    button { 
-        background: linear-gradient(to bottom, #4e3b2b, #302419); 
-        color: var(--gold); 
-        border: 1px solid var(--gold); 
-        padding: 10px; 
-        width: 100%; 
-        margin-top: 10px; 
-        cursor: pointer; 
-        transition: 0.2s; 
-        font-weight: bold;
+    /* Tabs */
+    .tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab { padding: 11px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid transparent; background: transparent; color: var(--text-muted); transition: all 0.2s; }
+    .tab:hover { color: var(--text); background: var(--surface-2); }
+    .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Log */
+    .log { height: 260px; overflow-y: auto; background: var(--bg-subtle); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 14px; font-size: 12px; line-height: 1.5; }
+    .log-entry { padding: 8px 10px; margin-bottom: 6px; border-radius: 6px; border-left: 3px solid var(--border); font-size: 12px; }
+    .log-entry:last-child { margin-bottom: 0; }
+    .log-entry.event { background: rgba(201, 168, 108, 0.08); border-left-color: var(--warm); color: var(--text); }
+    .log-entry.diplomacy { background: rgba(124, 156, 191, 0.08); border-left-color: var(--accent); color: var(--text); }
+    .log-entry.economy { background: rgba(74, 155, 109, 0.08); border-left-color: var(--success); color: var(--text); }
+    .log-entry.military { background: rgba(199, 92, 92, 0.08); border-left-color: var(--danger); color: var(--text); }
+    .log-entry.system { background: transparent; border-left-color: var(--text-faint); color: var(--text-muted); }
+    .log-entry .log-time { font-size: 10px; color: var(--text-faint); margin-right: 8px; }
+
+    /* Advisor / AI */
+    .advisor-area { display: flex; flex-direction: column; gap: 12px; }
+    .advisor-chat { height: 200px; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-size: 13px; }
+    .advisor-msg { margin-bottom: 10px; padding: 10px 12px; border-radius: var(--radius-sm); max-width: 90%; }
+    .advisor-msg.player { background: var(--accent); color: #fff; margin-left: auto; }
+    .advisor-msg.advisor { background: var(--surface-2); border: 1px solid var(--border); }
+    .advisor-input-row { display: flex; gap: 10px; }
+    .advisor-input-row textarea { flex: 1; min-height: 60px; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-family: inherit; font-size: 13px; resize: vertical; }
+    .advisor-input-row textarea::placeholder { color: var(--text-muted); }
+
+    /* Diplomacy */
+    .dip-row { display: flex; gap: 16px; margin-bottom: 14px; align-items: flex-end; flex-wrap: wrap; }
+    .dip-select-wrap { min-width: 180px; }
+    .dip-select-wrap select { width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 13px; }
+    .dip-relation { padding: 8px 14px; background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border-soft); font-size: 13px; }
+    .dip-relation .label { color: var(--text-muted); margin-right: 6px; }
+    .dip-relation .value { font-weight: 600; }
+    .dip-chat { height: 180px; overflow-y: auto; background: var(--bg-subtle); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px; font-size: 12px; }
+    .dip-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .dip-inbox { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; padding: 8px 12px; background: var(--surface-2); border-radius: var(--radius-sm); }
+
+    /* Buildings by category */
+    .build-categories { display: flex; flex-direction: column; gap: 20px; }
+    .build-cat { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+    .build-cat-title { padding: 10px 14px; background: var(--surface-2); font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .build-cat-list { padding: 10px; display: grid; gap: 8px; }
+    .build-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; background: var(--surface-2); border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; text-align: left; }
+    .build-item:hover { border-color: var(--accent); background: var(--surface); }
+    .build-item .name { font-weight: 500; }
+    .build-item .cost { color: var(--gold); font-size: 13px; }
+    .build-item .desc { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .build-item .left { flex: 1; min-width: 0; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); max-width: 480px; width: 100%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 24px 48px rgba(0,0,0,0.4); }
+    .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .modal-head h3 { margin: 0; font-size: 1em; }
+    .modal-body { padding: 20px; overflow-y: auto; }
+    .modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: 18px; line-height: 1; }
+    .modal-close:hover { color: var(--danger); }
+
+    /* Time step */
+    .time-step-row { display: flex; gap: 10px; align-items: center; margin-top: 16px; }
+    .time-step-row select { padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 13px; }
+
+    /* Вкладка Нейросети */
+    .ai-status-block { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; padding: 12px 16px; border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid var(--border-soft); }
+    .ai-status-label { font-weight: 600; font-size: 14px; }
+    .ai-status-block.connected .ai-status-label { color: var(--success); }
+    .ai-status-block.disconnected .ai-status-label { color: var(--text-muted); }
+    .ai-status-hint { font-size: 12px; color: var(--text-faint); }
+    .ai-desc { color: var(--text-muted); font-size: 13px; margin-bottom: 18px; line-height: 1.5; }
+    .ai-actions { display: flex; gap: 10px; margin-bottom: 16px; }
+    .ai-connect-form { margin-bottom: 20px; }
+    .ai-connect-form .ai-label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .ai-key-input { width: 100%; max-width: 400px; padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-size: 13px; font-family: inherit; }
+    .ai-form-buttons { display: flex; gap: 10px; margin-top: 12px; }
+    .ai-features { list-style: none; padding: 0; margin: 0 0 16px; font-size: 13px; color: var(--text-muted); }
+    .ai-features li { margin-bottom: 10px; padding-left: 0; }
+    .ai-features strong { color: var(--text); }
+    .ai-privacy { font-size: 11px; color: var(--text-faint); }
+
+    .site-brand { text-align: center; padding: 20px 24px 14px; border-bottom: 1px solid var(--border-soft); margin: 0 -24px 20px -24px; padding-left: 24px; padding-right: 24px; }
+    .site-title { margin: 0; font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; color: var(--warm); letter-spacing: 0.03em; }
+    .site-tagline { margin: 6px 0 0; font-size: 0.9rem; color: var(--text-muted); }
+    @media (max-width: 640px) {
+        .site-brand { margin-left: -14px; margin-right: -14px; padding: 16px 14px 10px; }
+        .site-title { font-size: 1.4rem; }
     }
+    .app-footer { font-size: 11px; color: var(--text-faint); text-align: center; padding: 12px 16px; margin-top: 8px; }
+    .app-footer a { color: var(--accent); }
+    @media (max-width: 480px) { .footer-hide-sm { display: none; } }
 
-    button:hover { background: var(--gold); color: #000; }
-
-    .btn-primary { 
-        background: var(--accent); 
-        color: white; 
-        font-size: 1.1em; 
-        padding: 15px;
-    }
-
-    #log { 
-        height: 200px; 
-        overflow-y: auto; 
-        background: #000; 
-        padding: 10px; 
-        font-family: monospace; 
-        border: 1px solid #333;
-    }
+    .hidden { display: none !important; }
     </style>
-
-<div id="game-container">
-    <header>
-        <div id="date">1 Января 500 г.</div>
-        <div id="country-name">Загрузка...</div>
-        <div>Золото: <span id="top-gold">0</span></div>
+</head>
+<body>
+<div class="app">
+    <header class="site-brand">
+        <h1 class="site-title">World of Valoria</h1>
+        <p class="site-tagline">Стратегия королевств</p>
+    </header>
+    <header class="header">
+        <div class="header-left">
+            <div class="leader-card" id="header-leader">
+                <div class="leader-avatar" id="leader-avatar">👑</div>
+                <div>
+                    <div class="leader-name" id="leader-name">—</div>
+                    <div class="leader-title" id="leader-title">Правитель</div>
+                </div>
+            </div>
+            <div>
+                <div class="header-country" id="country-name">Загрузка...</div>
+                <div class="header-date" id="date">—</div>
+            </div>
+        </div>
+        <div class="header-stats">
+            <div class="header-stat">💰 <span class="value" id="top-gold">0</span></div>
+            <div class="header-stat">👥 <span class="value" id="top-pop">0</span></div>
+            <div class="header-stat">⚔️ <span class="value" id="top-army">0</span></div>
+        </div>
+        <div class="header-actions">
+            <button type="button" class="btn btn-ghost" onclick="saveGame()">💾 Сохранить</button>
+            <button type="button" class="btn btn-ghost" onclick="loadGame()">📂 Загрузить</button>
+            <button type="button" class="btn btn-primary" id="btn-next-turn" onclick="runTurn()">Следующий ход</button>
+        </div>
     </header>
 
-  <aside id="stats-panel" class="panel">
-    <h3 style="color: var(--gold); text-align: center; margin-top: 0;">📊 ВЕЛИЧИЕ КРАЯ</h3>
-    <div style="margin-bottom: 10px;">👥 Население: <span id="pop" style="color: #fff;">...</span></div>
-    <div style="margin-bottom: 10px;">⚔️ Армия: <span id="army" style="color: #fff;">0</span></div>
-    <div style="margin-bottom: 10px;">⚖️ Стабильность: <span id="stab" style="color: #fff;">0%</span></div>
-    <div style="border-top: 1px solid #444; padding-top: 10px;">
-        💰 Месячный доход: <small id="income-display" style="font-weight: bold;"></small>
-    </div>
-    <hr style="border: 0; border-top: 1px solid #5d4a37; margin: 15px 0;">
-    <button onclick="recruitArmy()">🔨 Нанять полк (5 💰)</button>
-    <button onclick="openConstruction()">🏗️ Строительство</button>
-</aside>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="card resources">
+                <div class="card-title">📊 Ресурсы</div>
+                <div class="stat-row"><span class="label">Население</span><span class="val" id="pop">—</span></div>
+                <div class="stat-row"><span class="label">Армия</span><span class="val" id="army">—</span></div>
+                <div class="stat-row"><span class="label">Стабильность</span><span class="val" id="stab">—</span></div>
+                <div class="stat-row"><span class="label">Доход/мес</span><span class="val" id="income-display">—</span></div>
+            </div>
+            <div class="card buildings">
+                <div class="card-title">🏛 Постройки</div>
+                <ul id="buildings-list" style="list-style:none; padding:0; margin:0; font-size:12px; color: var(--text-muted);"></ul>
+            </div>
+            <div class="card queue">
+                <div class="card-title">🏗 В строительстве</div>
+                <ul id="queue-list" style="list-style:none; padding:0; margin:0; font-size:12px;"></ul>
+            </div>
+            <button type="button" class="btn" onclick="recruitArmy()">⚔️ Нанять полк (5 💰)</button>
+            <button type="button" class="btn" onclick="openConstruction()">🏗 Строительство</button>
+        </aside>
 
-    <main id="main-view">
-        <div id="map-or-diplomacy" class="panel" style="flex-grow: 1;">
-            <h3>Мировые новости</h3>
-            <div id="log"></div>
+        <main class="card" style="padding: 26px; border-left: 3px solid var(--accent);">
+            <div class="tabs">
+                <button type="button" class="tab" data-view="ai">Нейросети</button>
+                <button type="button" class="tab active" data-view="news">Новости</button>
+                <button type="button" class="tab" data-view="advisor">Советник</button>
+                <button type="button" class="tab" data-view="decrees">Указы</button>
+                <button type="button" class="tab" data-view="diplomacy">Дипломатия</button>
+            </div>
+
+            <div id="view-ai" class="view">
+                <div class="card-title">Подключение нейросетей</div>
+                <div id="ai-status-block" class="ai-status-block">
+                    <span id="ai-status-label" class="ai-status-label">Не подключено</span>
+                    <span id="ai-status-hint" class="ai-status-hint"></span>
+                </div>
+                <p class="ai-desc">При подключении нейросеть будет генерировать описания событий, управлять другими странами (строительство, армия, дипломатия), писать месячные и годовые сводки, а также отвечать в роли советника и правителей в дипломатии.</p>
+                <div class="ai-actions">
+                    <button type="button" class="btn btn-primary" id="ai-btn-connect" onclick="showAIConnect()">Подключить</button>
+                    <button type="button" class="btn btn-ghost" id="ai-btn-disconnect" onclick="disconnectAI()">Отключить</button>
+                </div>
+                <div id="ai-connect-form" class="ai-connect-form hidden">
+                    <label class="ai-label">API-ключ OpenAI (sk-...) или Groq (gsk_...)</label>
+                    <input type="password" id="ai-key-input" class="ai-key-input" placeholder="Вставьте ключ">
+                    <div class="ai-form-buttons">
+                        <button type="button" class="btn btn-primary" onclick="connectAI()">Сохранить и подключить</button>
+                        <button type="button" class="btn btn-ghost" onclick="hideAIConnect()">Отмена</button>
+                    </div>
+                </div>
+                <ul class="ai-features">
+                    <li><strong>Википедия</strong> — игра подгружает описание из русской Википедии по вашему запросу (реформы, указы, исторические понятия) и передаёт контекст нейросети, чтобы та понимала, что вы имеете в виду.</li>
+                    <li><strong>События</strong> — нейросеть дополняет новости короткими описаниями в стиле хроники.</li>
+                    <li><strong>Другие страны</strong> — ИИ принимает решения за соседние королевства: постройки, набор войск, улучшение или ухудшение отношений.</li>
+                    <li><strong>Советник</strong> — ответы на ваши вопросы; при запросе по реформе или понятию подтягивается контекст из Википедии.</li>
+                    <li><strong>Указы</strong> — во вкладке «Указы» вы вводите реформу (например, «крепостное право»); игра ищет её в Википедии и просит ИИ рассчитать эффект в игре.</li>
+                    <li><strong>Дипломатия</strong> — ответы правителей других стран на ваши послания.</li>
+                    <li><strong>Сводки</strong> — итоги месяца и года в виде коротких текстов от летописца.</li>
+                </ul>
+                <p class="ai-privacy">Ключ хранится только на этом устройстве (localStorage) и не передаётся никуда, кроме выбранного API (OpenAI или Groq).</p>
+            </div>
+
+            <div id="view-news" class="view active">
+                <div class="card-title">Мировые события</div>
+                <div id="log" class="log"></div>
+                <div class="time-step-row">
+                    <label>Шаг времени:</label>
+                    <select id="time-step">
+                        <option value="1">1 день</option>
+                        <option value="7">1 неделя</option>
+                        <option value="30">1 месяц</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="view-advisor" class="view">
+                <div class="card-title">Советник (ИИ)</div>
+                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 12px;">Задайте вопрос о внутренней политике, экономике или угрозах. Советник ответит на основе текущего состояния страны.</p>
+                <p id="advisor-ai-hint" style="color: var(--text-muted); font-size: 11px; margin-bottom: 12px;"></p>
+                <div id="advisor-chat" class="advisor-chat"></div>
+                <div class="advisor-input-row">
+                    <textarea id="advisor-input" placeholder="Например: стоит ли повысить налоги? или как укрепить стабильность?"></textarea>
+                    <button type="button" class="btn btn-primary" onclick="askAdvisor()">Спросить</button>
+                </div>
+            </div>
+
+            <div id="view-decrees" class="view">
+                <div class="card-title">Указы и реформы</div>
+                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 12px;">Опишите указ или реформу — игра подгрузит смысл из Википедии и (при подключённой нейросети) предложит эффект в игре. Например: «ввести крепостное право», «налог на соль», «создать постоянную армию».</p>
+                <div class="advisor-input-row">
+                    <input type="text" id="decree-input" class="ai-key-input" placeholder="Например: ввести крепостное право" style="max-width: none;">
+                    <button type="button" class="btn btn-primary" id="decree-btn" onclick="applyDecree()">Провести указ</button>
+                </div>
+                <p id="decree-wiki-hint" style="font-size: 11px; color: var(--text-faint); margin-top: 8px;"></p>
+            </div>
+
+            <div id="view-diplomacy" class="view">
+                <div class="card-title">Дипломатия</div>
+                <div class="dip-row">
+                    <div class="dip-select-wrap">
+                        <label style="display:block; font-size:11px; color: var(--text-muted); margin-bottom:4px;">Страна</label>
+                        <select id="dip-target"></select>
+                    </div>
+                    <div class="dip-relation"><span class="label">Отношения:</span><span class="value" id="dip-rel-val">0</span> <span id="dip-rel-label" style="color: var(--text-muted); font-size: 11px; margin-left: 6px;"></span></div>
+                </div>
+                <div class="dip-actions" style="margin-bottom:12px; flex-wrap: wrap;">
+                    <button type="button" class="btn" onclick="diplomacy.improve()">🎁 Дары (10 💰)</button>
+                    <button type="button" class="btn" onclick="diplomacy.trade()">📜 Торговый договор (15 💰)</button>
+                    <button type="button" class="btn" onclick="diplomacy.alliance()">🤝 Предложить союз (25 💰)</button>
+                    <button type="button" class="btn" onclick="diplomacy.demandTribute()">📦 Требовать дань</button>
+                    <button type="button" class="btn" onclick="diplomacy.insult()">😤 Оскорбить</button>
+                    <button type="button" class="btn" onclick="diplomacy.breakTies()">⚔️ Разорвать отношения</button>
+                </div>
+                <div id="dip-inbox" class="dip-inbox hidden"></div>
+                <div class="card-title">Переписка с правителем (ИИ)</div>
+                <p style="color: var(--text-muted); font-size: 12px; margin-bottom: 8px;">Напишите послание — ИИ ответит от лица лидера. Другие страны тоже могут писать вам первыми.</p>
+                <div id="dip-chat" class="dip-chat"></div>
+                <div class="advisor-input-row">
+                    <textarea id="dip-input" placeholder="Напишите послание..."></textarea>
+                    <button type="button" class="btn btn-primary" onclick="sendDiplomacyMessage()">Отправить</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <footer class="app-footer">
+        <strong>World of Valoria</strong>
+    </footer>
+</div>
+
+<!-- Build modal -->
+<div id="build-modal" class="modal-overlay hidden">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>Строительство</h3>
+            <button type="button" class="modal-close" onclick="closeConstruction()" aria-label="Закрыть">×</button>
         </div>
-        
-        <div class="panel">
-            <select id="time-step">
-                <option value="1">1 день</option>
-                <option value="7">1 неделя</option>
-                <option value="30">1 месяц</option>
-            </select>
-            <button class="btn-primary" onclick="engine.nextTurn()">СЛЕДУЮЩИЙ ХОД</button>
-        </div>
-    </main>
+        <div class="modal-body" id="build-list"></div>
+    </div>
 </div>
 
 <script>
-// 1. Все данные игры хранятся здесь
-const buildingCatalog = {
-    market: { name: "Рынок", cost: 30, time: 60, effect: "income", value: 0.5, desc: "+0.5 золота/мес" },
-    barracks: { name: "Казармы", cost: 40, time: 90, effect: "upkeep", value: 0.2, desc: "-20% цена армии" },
-    farm: { name: "Ферма", cost: 20, time: 45, effect: "pop", value: 0.002, desc: "+0.2% рост населения" }
+const SAVE_KEY = 'strategy_save';
+
+// Постройки по категориям
+const BUILD_CATEGORIES = {
+    economy: { name: 'Экономика', icon: '💰' },
+    military: { name: 'Военные', icon: '⚔️' },
+    development: { name: 'Развитие', icon: '📜' },
+    culture: { name: 'Культура', icon: '🏛' }
 };
-    const world = {
+
+const buildingCatalog = {
+    market:     { name: 'Рынок',           cost: 30,  time: 60,  category: 'economy',     effect: 'income', value: 0.5,  desc: '+0.5 золота/мес' },
+    mint:       { name: 'Монетный двор',   cost: 80,  time: 90,  category: 'economy',     effect: 'income', value: 1,   desc: '+1 золота/мес' },
+    warehouse:  { name: 'Склад',           cost: 25,  time: 45,  category: 'economy',     effect: 'pop', value: 0.001, desc: '+0.1% рост населения' },
+    barracks:   { name: 'Казармы',         cost: 40,  time: 90,  category: 'military',    effect: 'upkeep', value: 0.2, desc: '-20% содержание армии' },
+    walls:      { name: 'Стены',           cost: 60,  time: 120, category: 'military',    effect: 'defense', value: 1,  desc: 'Защита при обороне' },
+    armory:     { name: 'Арсенал',         cost: 55,  time: 80,  category: 'military',    effect: 'army', value: 50,   desc: '+50 к макс. армии' },
+    farm:       { name: 'Ферма',           cost: 20,  time: 45,  category: 'development', effect: 'pop', value: 0.002, desc: '+0.2% рост населения' },
+    library:    { name: 'Библиотека',      cost: 35,  time: 70,  category: 'development', effect: 'stab', value: 2,   desc: '+2 стабильности' },
+    academy:    { name: 'Академия',        cost: 70,  time: 100, category: 'development', effect: 'prestige', value: 5, desc: '+5 престижа' },
+    temple:     { name: 'Храм',            cost: 45,  time: 75,  category: 'culture',    effect: 'stab', value: 3,   desc: '+3 стабильности' },
+    theater:    { name: 'Театр',           cost: 50,  time: 85,  category: 'culture',    effect: 'prestige', value: 4, desc: '+4 престижа' }
+};
+
+const defaultLeaders = {
+    Valoria:  { name: 'Альдрик II', title: 'Король', avatar: '👑' },
+    Norvind:  { name: 'Хельга Стойкая', title: 'Вождь', avatar: '⚔️' },
+    Kharad:   { name: 'Морган Крот', title: 'Советник', avatar: '📜' },
+    Elyndor:  { name: 'Лираэль', title: 'Верховная жрица', avatar: '🌙' }
+};
+
+let world = {
     date: { day: 1, month: 0, year: 500 },
-    months: ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"],
-    playerCountry: "Valoria",
+    months: ['Января', 'Февраля', 'Марта', 'Апреля', 'Мая', 'Июня', 'Июля', 'Августа', 'Сентября', 'Октября', 'Ноября', 'Декабря'],
+    playerCountry: 'Valoria',
     countries: {
-        "Valoria": { pop: 10000, gold: 50, army: 100, stab: 85, buildings: {}, constructionQueue: [], relations: {} },
-        "Norvind": { pop: 12000, gold: 40, army: 200, stab: 80, buildings: {}, constructionQueue: [], relations: {} },
-        "Kharad":  { pop: 8000,  gold: 60, army: 50,  stab: 90, buildings: {}, constructionQueue: [], relations: {} },
-        "Elyndor": { pop: 9500,  gold: 45, army: 120, stab: 88, buildings: {}, constructionQueue: [], relations: {} }
+        Valoria:  { pop: 10000, gold: 50, army: 100, stab: 85, prestige: 20, buildings: {}, constructionQueue: [], relations: {}, chatHistory: [], leader: defaultLeaders.Valoria },
+        Norvind:  { pop: 12000, gold: 40, army: 200, stab: 80, prestige: 15, buildings: {}, constructionQueue: [], relations: {}, chatHistory: [], leader: defaultLeaders.Norvind },
+        Kharad:   { pop: 8000,  gold: 60, army: 50,  stab: 90, prestige: 25, buildings: {}, constructionQueue: [], relations: {}, chatHistory: [], leader: defaultLeaders.Kharad },
+        Elyndor:  { pop: 9500,  gold: 45, army: 120, stab: 88, prestige: 22, buildings: {}, constructionQueue: [], relations: {}, chatHistory: [], leader: defaultLeaders.Elyndor }
     }
 };
 
-// 2. Инициализация отношений (запускается один раз при старте)
-for (let name in world.countries) {
-    for (let other in world.countries) {
-        if (name !== other) {
-            world.countries[name].relations[other] = Math.floor(Math.random() * 40) - 20; 
+function initRelations() {
+    for (let name in world.countries) {
+        var c = world.countries[name];
+        if (!c.chatHistory) c.chatHistory = [];
+        for (let other in world.countries) {
+            if (name !== other && c.relations[other] === undefined)
+                c.relations[other] = Math.floor(Math.random() * 40) - 20;
         }
     }
 }
 
-// 3. Главный движок игры
+// ——— Сохранение / загрузка ———
+function saveGame() {
+    try {
+        const data = JSON.stringify({
+            date: world.date,
+            playerCountry: world.playerCountry,
+            countries: world.countries,
+            version: 1
+        });
+        localStorage.setItem(SAVE_KEY, data);
+        logEvent('Игра сохранена в казне записей.', 'system');
+    } catch (e) {
+        logEvent('Ошибка сохранения: ' + e.message);
+    }
+}
+
+function loadGame() {
+    try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) { logEvent('Сохранение не найдено.'); return; }
+        const data = JSON.parse(raw);
+        world.date = data.date || world.date;
+        world.playerCountry = data.playerCountry || world.playerCountry;
+        world.countries = data.countries || world.countries;
+        for (var id in world.countries) { if (!world.countries[id].chatHistory) world.countries[id].chatHistory = []; }
+        initRelations();
+        engine.updateUI();
+        logEvent('Игра загружена из казны записей.', 'system');
+    } catch (e) {
+        logEvent('Ошибка загрузки: ' + e.message);
+    }
+}
+
+// ——— Движок ———
 const engine = {
-    // Переход на следующий ход
-    nextTurn() {
-        const steps = parseInt(document.getElementById('time-step').value);
-        
-        for (let i = 0; i < steps; i++) {
-            this.processDay();
-        }
-       this.updateUI();
+    async nextTurn() {
+        const steps = parseInt(document.getElementById('time-step').value) || 1;
+        for (let i = 0; i < steps; i++) await this.processDay();
+        this.updateUI();
     },
 
-   processDay() {
+    async processDay() {
         world.date.day++;
-        
         for (let name in world.countries) {
-            let c = world.countries[name];
+            const c = world.countries[name];
             for (let i = c.constructionQueue.length - 1; i >= 0; i--) {
-                let job = c.constructionQueue[i];
+                const job = c.constructionQueue[i];
                 job.daysLeft--;
-
                 if (job.daysLeft <= 0) {
-                    let bId = job.id;
+                    const bId = job.id;
                     c.buildings[bId] = (c.buildings[bId] || 0) + 1;
                     c.constructionQueue.splice(i, 1);
-                    
-                    if (name === world.playerCountry) {
-                        logEvent(`Ура! Постройка ${buildingCatalog[bId].name} завершена.`);
-                    }
+                    if (name === world.playerCountry)
+                        logEvent('Постройка «' + buildingCatalog[bId].name + '» завершена. Мастера отчитались перед двором.', 'economy');
                 }
             }
         }
-
         if (world.date.day > 30) {
             world.date.day = 1;
             world.date.month++;
-            if (world.date.month > 11) {
-                world.date.month = 0;
-                world.date.year++;
-            }
-            this.processMonth();
+            if (world.date.month > 11) { world.date.month = 0; world.date.year++; }
+            await this.processMonth();
         }
-     // Шанс появления обычного события (1% каждый день)
-    if (name === world.playerCountry && Math.random() < 0.01) {
-        const event = randomEvents[Math.floor(Math.random() * randomEvents.length)];
-        event.effect(c); // c — это текущая страна в цикле
-        logEvent(`📜 СОБЫТИЕ: ${event.text}`);
-    }
+        if (world.countries[world.playerCountry] && Math.random() < 0.012) {
+            const ev = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+            ev.effect(world.countries[world.playerCountry]);
+            logEvent(ev.text, 'event');
+            if (getAIKey()) {
+                (async function() {
+                    const aiText = await generateEventDescription(ev.text, world.playerCountry);
+                    if (aiText) logEvent(aiText, 'event');
+                })();
+            }
+        }
     },
 
-    processMonth() {
-    for (let name in world.countries) {
-        let c = world.countries[name];
-        
-        // Считаем бонусы от построек
-        let marketBonus = (c.buildings.market || 0) * 0.5; // Каждый рынок дает +0.5 золота
-        let farmBonus = (c.buildings.farm || 0) * 0.002;  // Каждая ферма ускоряет рост населения
-        
-        // Экономика с учетом зданий
-        let income = (c.pop * 0.01) + marketBonus; 
-        let upkeep = (c.army * 0.05);
-        c.gold += (income - upkeep);
-        
-        // Рост населения с учетом ферм
-        c.pop += Math.floor(c.pop * (0.001 + farmBonus));
-    }
-    
-    if (typeof runAIBehavior === "function") {
-        runAIBehavior(); 
-    }
-    this.updateUI(); // строка 159
-    }, // строка 160 (запятая!)
-    updateUI() { // строка 161
+    async processMonth() {
+        worldPulse();
+        if (world.date.month === 0) logEvent('Завершился ' + (world.date.year - 1) + ' год. Двор подводит итоги.', 'system');
+        for (let name in world.countries) {
+            const c = world.countries[name];
+            let income = (c.pop * 0.01) + (c.buildings.market || 0) * 0.5 + (c.buildings.mint || 0) * 1;
+            let upkeep = c.army * 0.05 * (1 - (c.buildings.barracks || 0) * 0.2);
+            c.gold += (income - upkeep);
+            if (c.gold < 0) c.stab = Math.max(0, (c.stab || 50) - 2);
+            const farmRate = 0.001 + (c.buildings.farm || 0) * 0.002 + (c.buildings.warehouse || 0) * 0.001;
+            c.pop += Math.floor(c.pop * farmRate);
+            c.pop = Math.max(1000, c.pop);
+            c.stab = Math.min(100, (c.stab || 50) + (c.buildings.library || 0) * 2 + (c.buildings.temple || 0) * 3);
+            c.prestige = (c.prestige || 20) + (c.buildings.academy || 0) * 5 + (c.buildings.theater || 0) * 4;
+        }
+        if (getAIKey()) {
+            try {
+                const decisions = await getAICountryDecisions();
+                if (decisions && Object.keys(decisions).length > 0) applyAIDecisions(decisions);
+                else if (typeof runAIBehavior === 'function') runAIBehavior();
+                const flavor = await generateAICountriesFlavor();
+                if (flavor) logEvent(flavor, 'system');
+                await generateProactiveDiplomacyMessages();
+                const monthSummary = await generateMonthSummary();
+                if (monthSummary) logEvent(monthSummary, 'system');
+                if (world.date.month === 0) {
+                    const yearSummary = await generateYearSummary();
+                    if (yearSummary) logEvent(yearSummary, 'system');
+                }
+            } catch (e) {
+                if (typeof runAIBehavior === 'function') runAIBehavior();
+            }
+        } else {
+            if (typeof runAIBehavior === 'function') runAIBehavior();
+        }
+        this.updateUI();
+    },
+
+    updateUI() {
         const p = world.countries[world.playerCountry];
-
-        // 1. Дата и название страны (строки 165-166)
-        document.getElementById('date').innerText = `${world.date.day} ${["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"][world.date.month]} ${world.date.year}`;
-        document.getElementById('country-name').innerText = world.playerCountry;
-
-        // 2. Статистика: Казна (в шапку) и прочее (строки 169-172)
-        document.getElementById('top-gold').innerText = Math.floor(p.gold); // Теперь казна справа сверху
-        document.getElementById('pop').innerText = p.pop.toLocaleString();
-        document.getElementById('army').innerText = p.army;
-        document.getElementById('stab').innerText = p.stab + "%";
-
-        // 3. Расчет и вывод ТОЛЬКО дохода (в боковую панель)
-        let income = (p.pop * 0.01) + (p.buildings.market || 0) * 0.5;
-        let upkeep = (p.army * 0.05);
-        let monthlyBalance = (income - upkeep).toFixed(1);
-
-        const incomeElem = document.getElementById('income-display');
-        incomeElem.innerText = `(${monthlyBalance >= 0 ? "+" : ""}${monthlyBalance})`;
-        incomeElem.style.color = monthlyBalance >= 0 ? "#66ff66" : "#ff4444"; // Зеленый или красный
-        
+        if (!p) return;
+        const shortMonths = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+        document.getElementById('date').textContent = `${world.date.day} ${shortMonths[world.date.month]} ${world.date.year}`;
+        document.getElementById('country-name').textContent = world.playerCountry;
+        document.getElementById('top-gold').textContent = Math.floor(p.gold);
+        document.getElementById('top-pop').textContent = p.pop.toLocaleString();
+        document.getElementById('top-army').textContent = p.army;
+        document.getElementById('pop').textContent = p.pop.toLocaleString();
+        document.getElementById('army').textContent = p.army;
+        document.getElementById('stab').textContent = p.stab + '%';
+        const income = (p.pop * 0.01) + (p.buildings.market || 0) * 0.5 + (p.buildings.mint || 0) * 1;
+        const upkeep = p.army * 0.05 * (1 - (p.buildings.barracks || 0) * 0.2);
+        const balance = (income - upkeep).toFixed(1);
+        const incomeEl = document.getElementById('income-display');
+        incomeEl.textContent = (balance >= 0 ? '+' : '') + balance;
+        incomeEl.style.color = balance >= 0 ? 'var(--success)' : 'var(--danger)';
+        const leader = p.leader || defaultLeaders[world.playerCountry] || { name: '—', title: 'Правитель', avatar: '👑' };
+        document.getElementById('leader-name').textContent = leader.name;
+        document.getElementById('leader-title').textContent = leader.title;
+        document.getElementById('leader-avatar').textContent = leader.avatar || '👑';
+        this.syncBuildingsList();
+        this.syncQueueList();
         this.syncDiplomacyList();
     },
 
-    syncDiplomacyList() {
-        const dipSelect = document.getElementById('dip-target');
-        if (!dipSelect) return;
+    syncBuildingsList() {
+        const ul = document.getElementById('buildings-list');
+        if (!ul) return;
+        const p = world.countries[world.playerCountry];
+        if (!p) return;
+        const items = [];
+        for (const id in buildingCatalog) {
+            const n = p.buildings[id] || 0;
+            if (n > 0) items.push(`${buildingCatalog[id].name}: ${n}`);
+        }
+        ul.innerHTML = items.length ? items.map(s => '<li style="margin-bottom:4px;">' + s + '</li>').join('') : '<li>Нет построек</li>';
+    },
 
-        if (dipSelect.options.length === 0) {
-            for (let name in world.countries) {
+    syncQueueList() {
+        const ul = document.getElementById('queue-list');
+        if (!ul) return;
+        const q = (world.countries[world.playerCountry] || {}).constructionQueue || [];
+        ul.innerHTML = q.length ? q.map(j => '<li style="margin-bottom:4px;">' + (buildingCatalog[j.id]?.name || j.id) + ' — ' + j.daysLeft + ' дн.</li>').join('') : '<li>Пусто</li>';
+    },
+
+    syncDiplomacyList() {
+        const sel = document.getElementById('dip-target');
+        if (!sel) return;
+        if (sel.options.length === 0) {
+            for (const name in world.countries) {
                 if (name !== world.playerCountry) {
-                    let opt = document.createElement('option');
+                    const opt = document.createElement('option');
                     opt.value = name;
-                    opt.innerText = name;
-                    dipSelect.appendChild(opt);
+                    opt.textContent = name;
+                    sel.appendChild(opt);
                 }
             }
         }
-        
-        // Показ отношений с выбранной страной
-        let target = dipSelect.value;
+        const target = sel.value;
         if (target) {
-            document.getElementById('dip-rel-val').innerText = world.countries[world.playerCountry].relations[target];
+            const rel = world.countries[world.playerCountry]?.relations[target] ?? 0;
+            const relEl = document.getElementById('dip-rel-val');
+            const labelEl = document.getElementById('dip-rel-label');
+            if (relEl) relEl.textContent = rel;
+            if (labelEl) labelEl.textContent = getRelationLabel(rel);
+            renderDipChat(target);
         }
     }
 };
 
-// 4. Лог событий (текстовое поле)
-function logEvent(text) {
-    const logDiv = document.getElementById('log');
-    if (!logDiv) return;
-    const entry = document.createElement('div');
-    entry.className = 'event-new';
-    entry.innerText = `[${world.date.year}] ${text}`;
-    logDiv.prepend(entry);
+function logEvent(text, type) {
+    type = type || 'system';
+    const log = document.getElementById('log');
+    if (!log) return;
+    const el = document.createElement('div');
+    el.className = 'log-entry ' + type;
+    const d = world.date;
+    const timeStr = d.day + ' ' + (world.months[d.month] ? world.months[d.month].slice(0,3) : '') + ' ' + d.year;
+    el.innerHTML = '<span class="log-time">' + timeStr + '</span>' + text;
+    log.prepend(el);
 }
 
-// === ВСТАВЛЯЕМ СЮДА ===
+function getRelationLabel(rel) {
+    if (rel <= -50) return '(Вражда)';
+    if (rel <= -20) return '(Недоверие)';
+    if (rel < 20) return '(Нейтрально)';
+    if (rel < 50) return '(Дружелюбие)';
+    return '(Союз)';
+}
 
+// ——— Вкладки ———
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        tab.classList.add('active');
+        const id = 'view-' + tab.dataset.view;
+        const view = document.getElementById(id);
+        if (view) view.classList.add('active');
+        if (tab.dataset.view === 'ai') refreshAIStatus();
+        if (tab.dataset.view === 'diplomacy') {
+            var t = document.getElementById('dip-target');
+            if (t && t.value) renderDipChat(t.value);
+        }
+    });
+});
+var dipTargetEl = document.getElementById('dip-target');
+if (dipTargetEl) dipTargetEl.addEventListener('change', function() {
+    if (this.value) renderDipChat(this.value);
+});
+
+// ——— Дипломатия ———
+function renderDipChat(targetId) {
+    var chat = document.getElementById('dip-chat');
+    if (!chat) return;
+    var other = world.countries[targetId];
+    var history = (other && other.chatHistory) ? other.chatHistory : [];
+    chat.innerHTML = '';
+    history.forEach(function(entry) {
+        var div = document.createElement('div');
+        div.className = 'advisor-msg ' + (entry.role === 'player' ? 'player' : 'advisor');
+        if (entry.role === 'player') div.textContent = entry.text;
+        else {
+            var name = (other.leader && other.leader.name) || targetId;
+            div.textContent = name + ': ' + (entry.text || '');
+        }
+        chat.appendChild(div);
+    });
+    chat.scrollTop = chat.scrollHeight;
+}
+
+const diplomacyFlavor = {
+    improve: ['Послы вернулись из {0} с тёплым приёмом. Дары приняты благосклонно.', 'Караван с подарками достиг {0}. При дворе говорят о сближении.'],
+    trade: ['Подписан торговый договор с {0}. Купцы радуются.', 'В {0} открыты новые торговые пути. Отношения крепнут.'],
+    alliance: ['{0} принял предложение о союзе. Союзники отныне.', '{0} согласился на союз. Двор ликует.'],
+    demandTribute: ['{0} откупился данью. Казна пополнена, но отношения испорчены.', '{0} прислал дань под давлением. В их землях зреет недовольство.'],
+    demandRefused: ['{0} отказался платить дань. Отношения резко ухудшились.', 'Посол {0} вернулся с отказом. Напряжённость растёт.'],
+    insult: ['Слух об оскорблении разлетелся по двору {0}. Отношения остыли.', 'В {0} наши слова сочли оскорблением.'],
+    breakTies: ['Дипломатические отношения с {0} разорваны. Посольство отозвано.']
+};
 const diplomacy = {
     improve() {
         const p = world.countries[world.playerCountry];
-        const targetName = document.getElementById('dip-target').value;
-        const cost = 10;
-
-        if (p.gold >= cost) {
-            p.gold -= cost;
-            world.countries[world.playerCountry].relations[targetName] += 15;
-            logEvent(`Мы отправили щедрые дары в ${targetName}. Отношения улучшились.`);
-            engine.updateUI();
+        const target = document.getElementById('dip-target').value;
+        if (!target || p.gold < 10) { logEvent('Недостаточно золота или страна не выбрана.', 'economy'); return; }
+        p.gold -= 10;
+        p.relations[target] = (p.relations[target] || 0) + 15;
+        logEvent(diplomacyFlavor.improve[Math.floor(Math.random() * diplomacyFlavor.improve.length)].replace('{0}', target), 'diplomacy');
+        engine.updateUI();
+    },
+    trade() {
+        const p = world.countries[world.playerCountry];
+        const target = document.getElementById('dip-target').value;
+        if (!target || p.gold < 15) { logEvent('Недостаточно золота или страна не выбрана.', 'economy'); return; }
+        p.gold -= 15;
+        p.relations[target] = (p.relations[target] || 0) + 12;
+        logEvent(diplomacyFlavor.trade[Math.floor(Math.random() * diplomacyFlavor.trade.length)].replace('{0}', target), 'diplomacy');
+        engine.updateUI();
+    },
+    alliance() {
+        const p = world.countries[world.playerCountry];
+        const target = document.getElementById('dip-target').value;
+        const rel = p.relations[target] || 0;
+        if (!target || p.gold < 25) { logEvent('Недостаточно золота или страна не выбрана.', 'economy'); return; }
+        if (rel < 15) { logEvent('Отношения с ' + target + ' слишком холодные для союза. Сначала улучшите их.', 'diplomacy'); return; }
+        p.gold -= 25;
+        p.relations[target] = rel + 25;
+        logEvent(diplomacyFlavor.alliance[Math.floor(Math.random() * diplomacyFlavor.alliance.length)].replace('{0}', target), 'diplomacy');
+        engine.updateUI();
+    },
+    demandTribute() {
+        const target = document.getElementById('dip-target').value;
+        if (!target) return;
+        const p = world.countries[world.playerCountry];
+        const other = world.countries[target];
+        const rel = p.relations[target] || 0;
+        if (rel >= 30 || (other.army || 0) < (p.army || 0) * 1.2) {
+            p.gold += 20;
+            p.relations[target] = rel - 20;
+            logEvent(diplomacyFlavor.demandTribute[Math.floor(Math.random() * diplomacyFlavor.demandTribute.length)].replace('{0}', target), 'diplomacy');
         } else {
-            logEvent("Казна пуста! Мы не можем позволить себе такие подарки.");
+            p.relations[target] = rel - 15;
+            logEvent(diplomacyFlavor.demandRefused[Math.floor(Math.random() * diplomacyFlavor.demandRefused.length)].replace('{0}', target), 'diplomacy');
         }
+        engine.updateUI();
     },
     insult() {
-        const targetName = document.getElementById('dip-target').value;
-        world.countries[world.playerCountry].relations[targetName] -= 20;
-        logEvent(`Наш посол высмеял манеры правителя ${targetName}. Отношения испорчены.`);
+        const target = document.getElementById('dip-target').value;
+        if (!target) return;
+        world.countries[world.playerCountry].relations[target] = (world.countries[world.playerCountry].relations[target] || 0) - 20;
+        logEvent(diplomacyFlavor.insult[Math.floor(Math.random() * diplomacyFlavor.insult.length)].replace('{0}', target), 'diplomacy');
+        engine.updateUI();
+    },
+    breakTies() {
+        const target = document.getElementById('dip-target').value;
+        if (!target) return;
+        world.countries[world.playerCountry].relations[target] = (world.countries[world.playerCountry].relations[target] || 0) - 35;
+        logEvent(diplomacyFlavor.breakTies[0].replace('{0}', target), 'diplomacy');
         engine.updateUI();
     }
 };
 
+function worldPulse() {
+    const pulses = [
+        'В портах говорят о росте торговли. Купцы ждут спокойных вод.',
+        'Зима выдалась суровой. Крестьяне копят припасы.',
+        'По дорогам идут караваны. Слухи разносятся быстрее обычного.',
+        'В столицах готовятся к праздникам. Настроение в народах спокойное.',
+        'Неурожай в соседних землях. Цены на зерно ползут вверх.',
+        'Бродячие певцы разносят вести из дальних краёв.',
+        'Монастыри отчитываются о сборе милостыни. Благочестие в почёте.',
+        'На границах тихо. Стражи несут службу как обычно.'
+    ];
+    if (Math.random() < 0.4) logEvent(pulses[Math.floor(Math.random() * pulses.length)], 'system');
+}
+
 function runAIBehavior() {
-    for (let name in world.countries) {
+    const buildingNames = Object.keys(buildingCatalog);
+    for (const name in world.countries) {
         if (name === world.playerCountry) continue;
-        let c = world.countries[name];
-
-        if (Math.random() < 0.1) {
-            let change = Math.floor(Math.random() * 11) - 5;
-            c.relations[world.playerCountry] += change;
-            if (change < -3) logEvent(`Газеты страны ${name} публикуют карикатуры на нас.`);
-            else if (change > 3) logEvent(`${name} выражает заинтересованность в торговле.`);
+        const c = world.countries[name];
+        if (Math.random() < 0.12) {
+            const change = Math.floor(Math.random() * 11) - 5;
+            c.relations[world.playerCountry] = (c.relations[world.playerCountry] || 0) + change;
+            if (change < -3) logEvent('Из ' + name + ' доносятся враждебные речи. Отношения остыли.', 'diplomacy');
+            else if (change > 3) logEvent('Из ' + name + ' прибыли купцы с дружескими дарами. Отношения потеплели.', 'diplomacy');
         }
-
-        if (c.gold > 60) {
-            c.gold -= 10;
-            c.army += 25;
+        if (c.gold > 70 && Math.random() < 0.25) {
+            const bid = buildingNames[Math.floor(Math.random() * buildingNames.length)];
+            const b = buildingCatalog[bid];
+            if (b && c.gold >= b.cost) {
+                c.gold -= b.cost;
+                c.constructionQueue.push({ id: bid, daysLeft: b.time });
+                logEvent('В ' + name + ' начато строительство: ' + b.name + '.', 'economy');
+            }
+        }
+        if (c.gold > 50 && c.army < 300 && Math.random() < 0.2) {
+            c.gold -= 8;
+            c.army += 40;
+            logEvent(name + ' нанимает наёмников. Военная активность на границах.', 'military');
         }
     }
 }
- function openConstruction() {
-    document.getElementById('build-modal').style.display = 'block';
-    const list = document.getElementById('build-list');
-    list.innerHTML = '';
 
-    for (let id in buildingCatalog) {
-        let b = buildingCatalog[id];
-        let btn = document.createElement('button');
-        btn.style.width = "100%";
-        btn.style.textAlign = "left";
-        btn.style.marginBottom = "10px";
-        btn.style.padding = "10px";
-        btn.innerHTML = `<b>${b.name}</b> <span style="float:right">${b.cost} золота</span><br><small>${b.desc}</small>`;
-        btn.onclick = () => startBuilding(id);
-        list.appendChild(btn);
+// ——— Строительство с подкатегориями ———
+function openConstruction() {
+    document.getElementById('build-modal').classList.remove('hidden');
+    const container = document.getElementById('build-list');
+    container.innerHTML = '';
+    for (const catId in BUILD_CATEGORIES) {
+        const cat = BUILD_CATEGORIES[catId];
+        const items = Object.entries(buildingCatalog).filter(([, b]) => b.category === catId);
+        if (items.length === 0) continue;
+        const block = document.createElement('div');
+        block.className = 'build-cat';
+        block.innerHTML = '<div class="build-cat-title">' + cat.icon + ' ' + cat.name + '</div><div class="build-cat-list"></div>';
+        container.appendChild(block);
+        const list = block.querySelector('.build-cat-list');
+        items.forEach(([id, b]) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'build-item';
+            btn.innerHTML = '<div class="left"><div class="name">' + b.name + '</div><div class="desc">' + b.desc + '</div></div><span class="cost">' + b.cost + ' 💰</span>';
+            btn.onclick = () => startBuilding(id);
+            list.appendChild(btn);
+        });
     }
 }
 
 function closeConstruction() {
-    document.getElementById('build-modal').style.display = 'none';
+    document.getElementById('build-modal').classList.add('hidden');
 }
 
 function startBuilding(id) {
-    let p = world.countries[world.playerCountry];
-    let b = buildingCatalog[id];
+    const p = world.countries[world.playerCountry];
+    const b = buildingCatalog[id];
+    if (!b || p.gold < b.cost) { logEvent('Недостаточно золота.'); return; }
+    p.gold -= b.cost;
+    p.constructionQueue.push({ id, daysLeft: b.time });
+    logEvent('Начато строительство: ' + b.name + '. Ожидание ' + b.time + ' дн.', 'economy');
+    closeConstruction();
+    engine.updateUI();
+}
 
-    if (p.gold >= b.cost) {
-        p.gold -= b.cost;
-        p.constructionQueue.push({ id: id, daysLeft: b.time });
-        logEvent(`Начато строительство: ${b.name}. Будет готово через ${b.time} дн.`);
-        closeConstruction();
-        engine.updateUI();
-    } else {
-        logEvent("Недостаточно золота для начала стройки!");
-    }
-}  
-    const randomEvents = [
-    { 
-        text: "В Valoria богатый урожай! Крестьяне жертвуют часть зерна в казну.", 
-        effect: (p) => { p.gold += 150; p.stab += 2; } 
-    },
-    { 
-        text: "Вспышка неизвестной лихорадки косит население.", 
-        effect: (p) => { p.pop = Math.floor(p.pop * 0.95); p.stab -= 10; } 
-    },
-    { 
-        text: "Странствующий рыцарь предлагает свои услуги вашему войску.", 
-        effect: (p) => { p.army += 200; p.stab += 5; } 
-    },
-    { 
-        text: "Пожар в столичном квартале! Требуются средства на восстановление.", 
-        effect: (p) => { p.gold -= 100; p.stab -= 5; } 
-    }
-];
 function recruitArmy() {
-    let p = world.countries[world.playerCountry];
-    if (p.gold >= 5) {
-        p.gold -= 5;
-        p.army += 100; // Нанимаем 100 солдат
-        engine.updateUI();
-        logEvent("Вы наняли новый полк. Сила армии растёт!");
-    } else {
-        logEvent("Недостаточно золота для найма армии!");
+    const p = world.countries[world.playerCountry];
+    if (p.gold < 5) { logEvent('Недостаточно золота.'); return; }
+    p.gold -= 5;
+    p.army += 100;
+    logEvent('Нанят новый полк. Воины присягнули на верность.', 'military');
+    engine.updateUI();
+}
+
+// ——— ИИ: советник и дипломатия ———
+function getAIKey() {
+    try { return localStorage.getItem('strategy_ai_key') || ''; } catch (e) { return ''; }
+}
+function setAIKey() {
+    var k = prompt('API-ключ OpenAI (sk-...) или Groq (gsk_...)');
+    if (k != null) {
+        try { localStorage.setItem('strategy_ai_key', k.trim()); refreshAIStatus(); logEvent('Нейросеть подключена.', 'system'); } catch (e) {}
     }
 }
-// === КОНЕЦ ВСТАВКИ ===
- 
-// 5. САМЫЙ ВАЖНЫЙ МОМЕНТ: Первичный запуск
-window.onload = () => {
+
+function refreshAIStatus() {
+    var key = getAIKey();
+    var connected = key.length > 0;
+    var block = document.getElementById('ai-status-block');
+    var label = document.getElementById('ai-status-label');
+    var hint = document.getElementById('ai-status-hint');
+    var btnConnect = document.getElementById('ai-btn-connect');
+    var btnDisconnect = document.getElementById('ai-btn-disconnect');
+    var form = document.getElementById('ai-connect-form');
+    if (block) {
+        block.classList.toggle('connected', connected);
+        block.classList.toggle('disconnected', !connected);
+    }
+    if (label) label.textContent = connected ? 'Подключено' : 'Не подключено';
+    if (hint) hint.textContent = connected ? (key.startsWith('gsk_') ? 'Groq' : 'OpenAI') : '';
+    if (btnConnect) btnConnect.style.display = connected ? 'none' : '';
+    if (btnDisconnect) btnDisconnect.style.display = connected ? '' : 'none';
+    if (form) form.classList.add('hidden');
+    var advisorHint = document.getElementById('advisor-ai-hint');
+    if (advisorHint) advisorHint.textContent = connected ? 'Нейросеть подключена. Задайте вопрос советнику.' : 'Подключите нейросеть во вкладке «Нейросети», чтобы советник отвечал на вопросы.';
+}
+
+function showAIConnect() {
+    document.getElementById('ai-connect-form').classList.remove('hidden');
+    var inp = document.getElementById('ai-key-input');
+    if (inp) { inp.value = getAIKey(); inp.focus(); }
+}
+function hideAIConnect() {
+    document.getElementById('ai-connect-form').classList.add('hidden');
+}
+function connectAI() {
+    var inp = document.getElementById('ai-key-input');
+    var k = inp ? inp.value.trim() : '';
+    if (!k) return;
+    try {
+        localStorage.setItem('strategy_ai_key', k);
+        refreshAIStatus();
+        hideAIConnect();
+        logEvent('Нейросеть подключена.', 'system');
+    } catch (e) {}
+}
+function disconnectAI() {
+    try {
+        localStorage.removeItem('strategy_ai_key');
+        refreshAIStatus();
+        logEvent('Нейросеть отключена.', 'system');
+    } catch (e) {}
+}
+
+function addAdvisorMsg(text, isPlayer) {
+    const chat = document.getElementById('advisor-chat');
+    if (!chat) return;
+    const div = document.createElement('div');
+    div.className = 'advisor-msg ' + (isPlayer ? 'player' : 'advisor');
+    div.textContent = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function addDipMsg(text, isPlayer) {
+    const chat = document.getElementById('dip-chat');
+    if (!chat) return;
+    const div = document.createElement('div');
+    div.className = 'advisor-msg ' + (isPlayer ? 'player' : 'advisor');
+    div.textContent = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+// ——— Википедия: поиск и краткое описание для понимания запросов игрока ———
+async function fetchWikipediaSummary(query) {
+    if (!query || query.length < 2) return { ok: false, text: '' };
+    var searchQuery = query.trim().replace(/\s+/g, ' ');
+    try {
+        var searchUrl = 'https://ru.wikipedia.org/w/api.php?action=query&list=search&srsearch=' + encodeURIComponent(searchQuery) + '&format=json&utf8=1&origin=*';
+        var searchRes = await fetch(searchUrl, { method: 'GET', mode: 'cors' });
+        var searchData = await searchRes.json();
+        var hits = searchData.query && searchData.query.search;
+        if (!hits || hits.length === 0) return { ok: false, text: '' };
+        var title = hits[0].title;
+        var summaryUrl = 'https://ru.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(title.replace(/\s/g, '_'));
+        var summaryRes = await fetch(summaryUrl, { method: 'GET', mode: 'cors' });
+        var summaryData = await summaryRes.json();
+        var extract = summaryData.extract || summaryData.description || '';
+        if (!extract) return { ok: true, title: title, text: '' };
+        return { ok: true, title: title, text: extract };
+    } catch (e) {
+        return { ok: false, text: '', error: e.message };
+    }
+}
+
+async function callAI(systemPrompt, userMessage, maxTokens) {
+    maxTokens = maxTokens || 400;
+    const key = getAIKey();
+    if (!key.trim()) return { ok: false, text: 'Введите API-ключ в настройках (localStorage: strategy_ai_key) или в консоли.' };
+    const url = key.startsWith('sk-') ? 'https://api.openai.com/v1/chat/completions' : 'https://api.groq.com/openai/v1/chat/completions';
+    const body = {
+        model: key.startsWith('sk-') ? 'gpt-4o-mini' : 'llama-3.1-8b-instant',
+        messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage }
+        ],
+        max_tokens: maxTokens
+    };
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + key
+            },
+            body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.error) return { ok: false, text: data.error.message || 'Ошибка API' };
+        const text = data.choices?.[0]?.message?.content?.trim() || 'Нет ответа.';
+        return { ok: true, text };
+    } catch (e) {
+        return { ok: false, text: e.message || 'Сеть ошибка' };
+    }
+}
+
+// ——— ИИ по игре: описания событий, решения ИИ-стран, сводки ———
+const buildingNameToId = { 'Рынок': 'market', 'Монетный двор': 'mint', 'Склад': 'warehouse', 'Казармы': 'barracks', 'Стены': 'walls', 'Арсенал': 'armory', 'Ферма': 'farm', 'Библиотека': 'library', 'Академия': 'academy', 'Храм': 'temple', 'Театр': 'theater' };
+
+async function generateEventDescription(eventText, countryName) {
+    const r = await callAI(
+        'Ты летописец средневековой стратегии. По событию напиши ОДНО короткое предложение (стиль хроники), по-русски. Без кавычек и лишнего.',
+        'Страна: ' + countryName + '. Событие: ' + eventText + '. Одно предложение.',
+        80
+    );
+    return r.ok ? r.text : '';
+}
+
+async function generateMonthSummary() {
+    const parts = [];
+    for (const name in world.countries) {
+        const c = world.countries[name];
+        parts.push(name + ': население ' + c.pop + ', золото ' + Math.floor(c.gold) + ', армия ' + c.army + ', стабильность ' + c.stab + '%');
+    }
+    const r = await callAI(
+        'Ты летописец. По состоянию мира напиши 1–2 предложения: итоги месяца или настроение в королевствах. Стиль хроники, по-русски.',
+        'Месяц ' + world.date.month + ', год ' + world.date.year + '. ' + parts.join('. '),
+        120
+    );
+    return r.ok ? r.text : '';
+}
+
+async function generateYearSummary() {
+    const parts = [];
+    for (const name in world.countries) {
+        const c = world.countries[name];
+        parts.push(name + ': население ' + c.pop + ', золото ' + Math.floor(c.gold) + ', армия ' + c.army);
+    }
+    const r = await callAI(
+        'Ты летописец. По итогам года напиши 2–3 предложения: что запомнилось в мире за год. Стиль хроники, по-русски.',
+        'Год ' + (world.date.year - 1) + '. ' + parts.join('. '),
+        150
+    );
+    return r.ok ? r.text : '';
+}
+
+async function getAICountryDecisions() {
+    const lines = [];
+    for (const name in world.countries) {
+        if (name === world.playerCountry) continue;
+        const c = world.countries[name];
+        const rel = c.relations[world.playerCountry] || 0;
+        lines.push(name + ': золото ' + Math.floor(c.gold) + ', армия ' + c.army + ', население ' + c.pop + ', отношения с ' + world.playerCountry + ' = ' + rel);
+    }
+    const buildList = Object.values(buildingCatalog).map(function(b) { return b.name; }).join(', ');
+    const r = await callAI(
+        'Ты принимаешь решения за каждую страну (не за игрока ' + world.playerCountry + '). Для каждой страны выбери РОВНО ОДНО решение. Формат ответа — строго по одной строке на страну: Страна: решение. Решения: build и название постройки из списка (' + buildList + '), или recruit, или improve, или insult, или none. Только эти слова, названия построек из списка.',
+        lines.join('\n'),
+        200
+    );
+    if (!r.ok) return null;
+    const decisions = {};
+    const nameList = Object.keys(world.countries).filter(function(n) { return n !== world.playerCountry; });
+    r.text.split(/\n/).forEach(function(line) {
+        line = line.trim();
+        const cname = nameList.find(function(n) { return line.toLowerCase().indexOf(n.toLowerCase()) === 0 || line.indexOf(n + ':') !== -1 || line.indexOf(n + '：') !== -1; });
+        if (!cname || !world.countries[cname]) return;
+        const act = line.replace(cname, '').replace(/^[\s:：]+/, '').trim().toLowerCase();
+        if (act.indexOf('build') === 0 || act.indexOf('постро') !== -1) {
+            var rest = act.replace(/build\s*|построить\s*|строительство\s*/gi, '').trim();
+            var found = false;
+            for (const bid in buildingCatalog) {
+                var bn = buildingCatalog[bid].name.toLowerCase();
+                if (rest.indexOf(bn) !== -1 || bn.indexOf(rest) !== -1 || rest === bid) {
+                    decisions[cname] = { action: 'build', id: bid };
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) decisions[cname] = { action: 'build', id: 'market' };
+        } else if (act.indexOf('recruit') !== -1 || act.indexOf('наём') !== -1 || act.indexOf('арми') !== -1) decisions[cname] = { action: 'recruit' };
+        else if (act.indexOf('improve') !== -1 || act.indexOf('улучш') !== -1 || act.indexOf('друж') !== -1) decisions[cname] = { action: 'improve' };
+        else if (act.indexOf('insult') !== -1 || act.indexOf('оскорб') !== -1) decisions[cname] = { action: 'insult' };
+    });
+    return Object.keys(decisions).length > 0 ? decisions : null;
+}
+
+function applyAIDecisions(decisions) {
+    for (const name in decisions) {
+        const c = world.countries[name];
+        if (!c) continue;
+        const d = decisions[name];
+        if (d.action === 'build' && buildingCatalog[d.id] && c.gold >= buildingCatalog[d.id].cost) {
+            c.gold -= buildingCatalog[d.id].cost;
+            c.constructionQueue.push({ id: d.id, daysLeft: buildingCatalog[d.id].time });
+            logEvent('В ' + name + ' начато строительство: ' + buildingCatalog[d.id].name + '.', 'economy');
+        } else if (d.action === 'recruit' && c.gold >= 8) {
+            c.gold -= 8;
+            c.army += 40;
+            logEvent(name + ' нанимает наёмников. Военная активность на границах.', 'military');
+        } else if (d.action === 'improve') {
+            c.relations[world.playerCountry] = (c.relations[world.playerCountry] || 0) + 10;
+            logEvent('Из ' + name + ' прибыли послы с дарами. Отношения потеплели.', 'diplomacy');
+        } else if (d.action === 'insult') {
+            c.relations[world.playerCountry] = (c.relations[world.playerCountry] || 0) - 15;
+            logEvent('Из ' + name + ' доносятся враждебные речи. Отношения остыли.', 'diplomacy');
+        }
+    }
+}
+
+async function generateAICountriesFlavor() {
+    const r = await callAI(
+        'Опиши в одном предложении, что делают соседние королевства в этом месяце (строят, нанимают, дипломатия). Стиль хроники, по-русски. Без кавычек.',
+        'Игрок: ' + world.playerCountry + '. Остальные страны: ' + Object.keys(world.countries).filter(function(n) { return n !== world.playerCountry; }).join(', ') + '. Состояние мира известно из контекста.',
+        100
+    );
+    return r.ok ? r.text : '';
+}
+
+async function generateProactiveDiplomacyMessages() {
+    var names = Object.keys(world.countries).filter(function(n) { return n !== world.playerCountry; });
+    if (names.length === 0) return;
+    var state = names.map(function(n) {
+        var c = world.countries[n];
+        return n + ' (отношения с ' + world.playerCountry + ': ' + (c.relations[world.playerCountry] || 0) + ')';
+    }).join('. ');
+    var r = await callAI(
+        'Ты генерируешь короткие послания от правителей стран к игроку. Для каждой страны решаешь: отправить одно предложение (приветствие, просьба, предупреждение, новость) или не писать. Формат ответа — ровно одна строка на страну: Страна: текст сообщения по-русски. Или Страна: NO. Пиши только текст сообщения, без имени отправителя.',
+        'Игрок: ' + world.playerCountry + '. ' + state + '. Ответь строками: Страна: сообщение или Страна: NO.',
+        250
+    );
+    if (!r.ok || !r.text) return;
+    r.text.split(/\n/).forEach(function(line) {
+        line = line.trim();
+        var match = line.match(/^([^:]+):\s*(.+)$/);
+        if (!match) return;
+        var cname = match[1].trim();
+        var msg = match[2].trim();
+        if (!world.countries[cname] || cname === world.playerCountry) return;
+        if (msg.toUpperCase() === 'NO' || msg.length < 3) return;
+        var other = world.countries[cname];
+        if (!other.chatHistory) other.chatHistory = [];
+        other.chatHistory.push({ role: 'other', text: msg });
+        logEvent('Вам письмо от ' + cname + ': «' + msg.slice(0, 60) + (msg.length > 60 ? '…' : '') + '»', 'diplomacy');
+    });
+}
+
+async function askAdvisor() {
+    const input = document.getElementById('advisor-input');
+    const text = (input && input.value || '').trim();
+    if (!text) return;
+    input.value = '';
+    addAdvisorMsg(text, true);
+    const p = world.countries[world.playerCountry];
+    var state = 'Страна: ' + world.playerCountry + '. Население: ' + p.pop + ', золото: ' + Math.floor(p.gold) + ', армия: ' + p.army + ', стабильность: ' + p.stab + '%. Постройки: ' + JSON.stringify(p.buildings) + '.';
+    var wiki = await fetchWikipediaSummary(text);
+    if (wiki.ok && wiki.text) state += ' Контекст из Википедии по запросу игрока («' + (wiki.title || '') + '»): ' + wiki.text;
+    const sys = 'Ты советник правителя в пошаговой стратегии. Отвечай кратко (2–4 предложения), по-русски. Учитывай контекст игры и, если дан контекст из Википедии — понимай, что имеет в виду игрок (реформы, указы, исторические понятия). Контекст: ' + state;
+    const reply = await callAI(sys, text);
+    addAdvisorMsg(reply.ok ? reply.text : '[Ошибка: ' + reply.text + ']', false);
+}
+
+async function applyDecree() {
+    var inp = document.getElementById('decree-input');
+    var text = (inp && inp.value || '').trim();
+    if (!text) return;
+    var hintEl = document.getElementById('decree-wiki-hint');
+    var btn = document.getElementById('decree-btn');
+    if (hintEl) hintEl.textContent = 'Поиск в Википедии…';
+    if (btn) btn.disabled = true;
+    var wiki = await fetchWikipediaSummary(text);
+    if (hintEl) hintEl.textContent = wiki.ok && wiki.title ? 'Википедия: «' + wiki.title + '»' + (wiki.text ? ' — ' + wiki.text.slice(0, 120) + '…' : '') : (wiki.ok ? '' : 'По Википедии ничего не найдено. ИИ всё равно попытается интерпретировать запрос.');
+    var p = world.countries[world.playerCountry];
+    if (!p) { if (btn) btn.disabled = false; return; }
+    if (!getAIKey()) {
+        if (wiki.ok && wiki.text) {
+            p.gold -= 30;
+            p.stab = Math.max(0, (p.stab || 50) - 2);
+            logEvent('Проведён указ: «' + text + '». ' + (wiki.title ? wiki.title + '. ' : '') + 'Казна потрачена, стабильность колеблется.', 'event');
+        } else {
+            logEvent('Подключите нейросеть (вкладка Нейросети) и введите указ снова — тогда игра рассчитает эффект по смыслу.', 'system');
+        }
+        if (btn) btn.disabled = false;
+        engine.updateUI();
+        return;
+    }
+    var sys = 'Ты расчёт эффекта указа в пошаговой стратегии. Игрок проводит указ/реформу. Запрос: «' + text + '». Контекст из Википедии: ' + (wiki.ok && wiki.text ? wiki.text : 'нет') + '. В игре у страны: золото, население, армия, стабильность, престиж. Ответь СТРОГО двумя строками. Строка 1 — только четыре числа через пробел: дельта gold, дельта stab, дельта pop, дельта prestige (например: -50 5 0 2). Строка 2 — одна короткая фраза для лога события по-русски.';
+    var reply = await callAI(sys, 'Строка 1: четыре числа. Строка 2: фраза для лога.', 150);
+    if (btn) btn.disabled = false;
+    if (!reply.ok) {
+        logEvent('Указ не рассчитан: ' + reply.text, 'system');
+        engine.updateUI();
+        return;
+    }
+    var lines = reply.text.split(/\n/).map(function(s) { return s.trim(); }).filter(Boolean);
+    var nums = lines[0] ? lines[0].replace(/,/g, ' ').split(/\s+/) : [];
+    var goldD = parseInt(nums[0], 10) || 0;
+    var stabD = parseInt(nums[1], 10) || 0;
+    var popD = parseInt(nums[2], 10) || 0;
+    var prestigeD = parseInt(nums[3], 10) || 0;
+    p.gold += goldD;
+    p.stab = Math.max(0, Math.min(100, (p.stab || 50) + stabD));
+    p.pop = Math.max(1000, (p.pop || 10000) + popD);
+    p.prestige = Math.max(0, (p.prestige || 20) + prestigeD);
+    var eventPhrase = lines[1] || ('Проведён указ: «' + text + '».');
+    logEvent(eventPhrase, 'event');
+    if (inp) inp.value = '';
     engine.updateUI();
-    logEvent("Мир вступил в эпоху 500-го года. Ваше правление началось.");
-};
+}
+
+async function sendDiplomacyMessage() {
+    var input = document.getElementById('dip-input');
+    var target = document.getElementById('dip-target') && document.getElementById('dip-target').value;
+    var text = (input && input.value || '').trim();
+    if (!text || !target) return;
+    input.value = '';
+    var other = world.countries[target];
+    if (!other.chatHistory) other.chatHistory = [];
+    other.chatHistory.push({ role: 'player', text: text });
+    var rel = (world.countries[world.playerCountry].relations[target] || 0);
+    var leaderName = (other.leader && other.leader.name) || target;
+    var state = 'Ты лидер страны ' + target + ', тебя зовут ' + leaderName + '. Отношения с ' + world.playerCountry + ': ' + rel + '. Игрок написал тебе: «' + text + '». Напиши ОТВЕТ от первого лица (1–3 предложения), как бы ты ответил правителю ' + world.playerCountry + '. Пиши только текст ответа, без подписи и без повторения своего имени — имя добавит игра.';
+    var reply = await callAI(state, 'Напиши только текст своего ответа (речь лидера), без имени.', 200);
+    var replyText = reply.ok ? (reply.text || '').trim() : ('[Ошибка: ' + reply.text + ']');
+    if (reply.ok && (replyText === leaderName || replyText.length < 5)) replyText = 'Мы обдумаем ваше послание и дадим ответ в надлежащее время.';
+    other.chatHistory.push({ role: 'other', text: replyText });
+    renderDipChat(target);
+    engine.syncDiplomacyList();
+}
+
+// ——— События (реалистичные, с живым языком) ———
+const randomEvents = [
+    { text: 'Богатый урожай. Крестьяне несут лишнее зерно в казну — казна пополнена, народ доволен.', effect: p => { p.gold += 150; p.stab += 2; } },
+    { text: 'Лихорадка в приграничных деревнях. Целители бессильны; население и стабильность падают.', effect: p => { p.pop = Math.floor(p.pop * 0.95); p.stab -= 10; } },
+    { text: 'Странствующий рыцарь с дружиной приносит клятву вашему трону. Армия растёт.', effect: p => { p.army += 200; p.stab += 5; } },
+    { text: 'Пожар в столичном квартале. Тратим казну на восстановление — стабильность под ударом.', effect: p => { p.gold -= 100; p.stab -= 5; } },
+    { text: 'Купцы из дальних земель преподносят дары. Торговля приносит неожиданную прибыль.', effect: p => { p.gold += 80; } },
+    { text: 'Неурожай. Цены растут, казна пустеет, в народе ропот.', effect: p => { p.gold -= 60; p.stab -= 4; } },
+    { text: 'В монастырях молятся за короля. Благочестие укрепляет стабильность.', effect: p => { p.stab += 3; } },
+    { text: 'Разбойники на большой дороге. Охрана перебита, караван разграблен — убытки для казны.', effect: p => { p.gold -= 70; p.stab -= 2; } },
+    { text: 'Наёмные лучники просят принять их на службу за малую плату. Армия пополнена.', effect: p => { p.gold -= 15; p.army += 80; } },
+    { text: 'Свадьба в правящем доме. Празднества поднимают настроение народа.', effect: p => { p.gold -= 25; p.stab += 5; } },
+    { text: 'Эпидемия в портовом городе. Жертвы и падение стабильности.', effect: p => { p.pop = Math.floor(p.pop * 0.97); p.stab -= 6; } },
+    { text: 'Найдены старые сокровища в подвалах крепости. Казна пополнена.', effect: p => { p.gold += 120; } }
+];
+
+async function runTurn() {
+    const btn = document.getElementById('btn-next-turn');
+    if (!btn || btn.disabled) return;
+    const oldText = btn.textContent;
+    btn.textContent = 'Идёт ход…';
+    btn.disabled = true;
+    try {
+        await engine.nextTurn();
+    } finally {
+        btn.textContent = oldText;
+        btn.disabled = false;
+    }
+}
+
+// ——— Старт ———
+initRelations();
+window.addEventListener('load', () => {
+    engine.updateUI();
+    refreshAIStatus();
+    logEvent('Эпоха ' + world.date.year + '. Трон принят — ваше правление началось.', 'system');
+});
 </script>
-      <div id="build-modal" class="panel" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; width:400px; background:#1a1a20; border:2px solid #ff5722; padding:20px; box-shadow: 0 0 20px #000;">
-    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #444; pb: 10px;">
-        <h3 style="margin:0;">Доступные постройки</h3>
-        <button onclick="closeConstruction()" style="background:none; border:none; color:red; font-size:20px; cursor:pointer; margin:0; padding:0;">✖</button>
-    </div>
-    <div id="build-list" style="margin-top:15px; max-height: 300px; overflow-y: auto;">
-        </div>
-</div>
 </body>
 </html>
