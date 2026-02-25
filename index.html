@@ -7,98 +7,78 @@
 <style>
 body {
     margin: 0;
-    background: black;
-    overflow: hidden;
-    touch-action: none;
+    font-family: sans-serif;
+    background: #0e0e0e;
+    color: white;
+    text-align: center;
 }
-canvas {
+
+.screen {
+    display: none;
+    padding: 40px;
+}
+
+.active {
     display: block;
 }
-.controls {
-    position: fixed;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: grid;
-    grid-template-columns: 60px 60px 60px;
-    grid-template-rows: 60px 60px;
-    gap: 10px;
-}
+
 button {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid white;
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 16px;
+    background: #222;
     color: white;
-    font-size: 24px;
-    border-radius: 10px;
+    border: 1px solid white;
 }
 </style>
 </head>
 <body>
 
-<canvas id="game"></canvas>
+<!-- Главное меню -->
+<div id="menu" class="screen active">
+    <h1>Pax Realis</h1>
+    <p>Выберите временной период</p>
 
-<div class="controls">
-    <div></div>
-    <button id="up">↑</button>
-    <div></div>
-    <button id="left">←</button>
-    <button id="down">↓</button>
-    <button id="right">→</button>
+    <button onclick="selectEra('Ancient')">Древний мир</button>
+    <button onclick="selectEra('Medieval')">Средневековье</button>
+    <button onclick="selectEra('Modern')">Новое время</button>
+
+    <br><br>
+    <button onclick="startGame()">Начать игру</button>
+</div>
+
+<!-- Игровой экран -->
+<div id="game" class="screen">
+    <h2 id="eraTitle"></h2>
+    <p>Игра запущена...</p>
+    <button onclick="nextTurn()">Следующий ход</button>
+    <p id="turnInfo">Ход: 1</p>
 </div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+let selectedEra = null;
+let turn = 1;
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-let player = {
-    x: 100,
-    y: 100,
-    size: 40,
-    speed: 4
-};
-
-let move = {
-    up: false,
-    down: false,
-    left: false,
-    right: false
-};
-
-function setupButton(id, direction) {
-    const btn = document.getElementById(id);
-
-    btn.addEventListener("touchstart", () => move[direction] = true);
-    btn.addEventListener("touchend", () => move[direction] = false);
+function selectEra(era) {
+    selectedEra = era;
+    alert("Вы выбрали: " + era);
 }
 
-setupButton("up", "up");
-setupButton("down", "down");
-setupButton("left", "left");
-setupButton("right", "right");
+function startGame() {
+    if (!selectedEra) {
+        alert("Выберите эпоху!");
+        return;
+    }
 
-function update() {
-    if (move.up) player.y -= player.speed;
-    if (move.down) player.y += player.speed;
-    if (move.left) player.x -= player.speed;
-    if (move.right) player.x += player.speed;
+    document.getElementById("menu").classList.remove("active");
+    document.getElementById("game").classList.add("active");
+    document.getElementById("eraTitle").innerText = "Эпоха: " + selectedEra;
 }
 
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "white";
-    ctx.fillRect(player.x, player.y, player.size, player.size);
+function nextTurn() {
+    turn++;
+    document.getElementById("turnInfo").innerText = "Ход: " + turn;
 }
-
-function gameLoop() {
-    update();
-    draw();
-    requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
 </script>
 
 </body>
