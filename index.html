@@ -328,8 +328,22 @@ function render() {
     game.date.year;
     document.getElementById("countryName").innerText = c.name;
     document.getElementById("pop").innerText = c.population.toFixed(1);
-    document.getElementById("gold").innerText = c.gold;
-    document.getElementById("army").innerText = c.army;
+
+// 📊 Месячный баланс
+let monthlyIncome = (c.population * 0.4) / 12;
+let monthlyArmyCost = (c.army * 0.3) / 12;
+let monthlyBalance = monthlyIncome - monthlyArmyCost;
+
+let goldText = c.gold.toFixed(2);
+
+let balanceText = monthlyBalance >= 0
+    ? `(+${monthlyBalance.toFixed(2)} / мес)`
+    : `(${monthlyBalance.toFixed(2)} / мес)`;
+
+document.getElementById("gold").innerText =
+    `${goldText} ${balanceText}`;
+
+document.getElementById("army").innerText = c.army;
     document.getElementById("stability").innerText = c.stability.toFixed(0);
 updateDiplomacyUI();
 }
