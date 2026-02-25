@@ -114,19 +114,21 @@ const engine = {
     },
 
     // Логика каждого месяца
-    processMonth() {
+   processMonth() {
         for (let name in world.countries) {
             let c = world.countries[name];
             
-            // Простая экономика: доход от людей - расходы на армию
+            // Базовая экономика
             let income = (c.pop * 0.01); 
             let upkeep = (c.army * 0.05);
             c.gold += (income - upkeep);
             
-            c.pop += Math.floor(c.pop * 0.001); // Прирост населения
-
-            // Здесь в будущем будет вызов ИИ
+            // Естественный рост населения
+            c.pop += Math.floor(c.pop * 0.001);
         }
+
+        // === ВОТ ЭТА СТРОКА — ЭТО ШАГ 2.3 ===
+        runAIBehavior(); 
     },
 
     // Обновление всего, что видит игрок на экране
@@ -184,10 +186,57 @@ function logEvent(text) {
     logDiv.prepend(entry);
 }
 
+// === ВСТАВЛЯЕМ СЮДА ===
+
+const diplomacy = {
+    improve() {
+        const p = world.countries[world.playerCountry];
+        const targetName = document.getElementById('dip-target').value;
+        const cost = 10;
+
+        if (p.gold >= cost) {
+            p.gold -= cost;
+            world.countries[world.playerCountry].relations[targetName] += 15;
+            logEvent(`Мы отправили щедрые дары в ${targetName}. Отношения улучшились.`);
+            engine.updateUI();
+        } else {
+            logEvent("Казна пуста! Мы не можем позволить себе такие подарки.");
+        }
+    },
+    insult() {
+        const targetName = document.getElementById('dip-target').value;
+        world.countries[world.playerCountry].relations[targetName] -= 20;
+        logEvent(`Наш посол высмеял манеры правителя ${targetName}. Отношения испорчены.`);
+        engine.updateUI();
+    }
+};
+
+function runAIBehavior() {
+    for (let name in world.countries) {
+        if (name === world.playerCountry) continue;
+        let c = world.countries[name];
+
+        if (Math.random() < 0.1) {
+            let change = Math.floor(Math.random() * 11) - 5;
+            c.relations[world.playerCountry] += change;
+            if (change < -3) logEvent(`Газеты страны ${name} публикуют карикатуры на нас.`);
+            else if (change > 3) logEvent(`${name} выражает заинтересованность в торговле.`);
+        }
+
+        if (c.gold > 60) {
+            c.gold -= 10;
+            c.army += 25;
+        }
+    }
+}
+
+// === КОНЕЦ ВСТАВКИ ===
+
 // 5. САМЫЙ ВАЖНЫЙ МОМЕНТ: Первичный запуск
 window.onload = () => {
     engine.updateUI();
     logEvent("Мир вступил в эпоху 500-го года. Ваше правление началось.");
+};
 };
 </script>
 </body>
