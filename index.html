@@ -1043,6 +1043,29 @@ function selectCountry(name) {
     document.getElementById("pop").innerText = country.population;
     document.getElementById("eco").innerText = country.economy;
 }
+    let selectedCountryElement = null;
+
+window.addEventListener("load", function () {
+    const paths = document.querySelectorAll("svg path");
+
+    paths.forEach(path => {
+        path.style.cursor = "pointer";
+
+        path.addEventListener("click", function () {
+
+            if (selectedCountryElement) {
+                selectedCountryElement.style.fill = "";
+            }
+
+            selectedCountryElement = path;
+            path.style.fill = "#ff5722";
+
+            document.getElementById("countryPanel").style.display = "block";
+            document.getElementById("countryName").innerText =
+                path.id || "Страна";
+        });
+    });
+});
 </script>
 
 </body>
