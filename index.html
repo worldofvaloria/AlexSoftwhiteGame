@@ -1,676 +1,194 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>World Strategy</title>
-<style>
-body {
-    background: #111;
-    color: white;
-    font-family: Arial;
-    text-align: center;
-}
+    <meta charset="UTF-8">
+    <title>Pax Historia: Redux</title>
+    <style>
+        :root { --bg: #0f0f12; --panel: #1a1a20; --accent: #ff5722; --text: #e0e0e0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; display: flex; justify-content: center; }
+        
+        #game-container { width: 950px; display: grid; grid-template-columns: 300px 1fr; grid-template-rows: auto 1fr auto; gap: 15px; padding: 20px; }
+        
+        header { grid-column: 1 / span 2; background: var(--panel); padding: 15px; border-radius: 8px; border-bottom: 2px solid var(--accent); display: flex; justify-content: space-between; align-items: center; }
+        
+        .panel { background: var(--panel); padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        
+        #stats-panel { grid-row: 2; }
+        #main-view { grid-row: 2; display: flex; flex-direction: column; gap: 15px; }
+        
+        #log { height: 200px; overflow-y: auto; background: #000; font-family: monospace; font-size: 13px; padding: 10px; border: 1px solid #444; color: #aaa; }
+        .event-new { color: #fff; border-left: 3px solid var(--accent); padding-left: 5px; margin-bottom: 5px; }
 
-#game {
-    margin-top: 40px;
-}
-
-button {
-    padding: 10px 20px;
-    margin-top: 20px;
-    background: #ff5722;
-    border: none;
-    color: white;
-    cursor: pointer;
-}
-</style>
+        button { background: #333; color: white; border: 1px solid #555; padding: 8px 12px; cursor: pointer; transition: 0.2s; }
+        button:hover { background: var(--accent); border-color: var(--accent); }
+        .btn-primary { background: var(--accent); border: none; font-weight: bold; width: 100%; padding: 15px; margin-top: 10px; }
+        
+        .stat-line { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px solid #2a2a2a; }
+        .stat-val { color: var(--accent); font-weight: bold; }
+    </style>
 </head>
-
 <body>
 
-<h1>World Strategy</h1>
+<div id="game-container">
+    <header>
+        <div id="current-date">1 Января 500 г.</div>
+        <div id="player-country-name">Загрузка...</div>
+        <div>Золото: <span id="top-gold" class="stat-val">0</span></div>
+    </header>
 
-<div id="game">
-    <h2>Год: <span id="year"></span></h2>
+    <aside id="stats-panel" class="panel">
+        <h3>Состояние страны</h3>
+        <div class="stat-line"><span>Население:</span> <span id="stat-pop" class="stat-val">0</span></div>
+        <div class="stat-line"><span>Армия:</span> <span id="stat-army" class="stat-val">0</span></div>
+        <div class="stat-line"><span>Стабильность:</span> <span id="stat-stab" class="stat-val">0</span></div>
+        <div class="stat-line"><span>Доход (мес):</span> <span id="stat-income" class="stat-val">0</span></div>
+        <hr>
+        <button onclick="recruitArmy()">Нанять полк (5 золота)</button>
+        <button onclick="openConstruction()">Строительство</button>
+    </aside>
 
-    <div id="countryPanel">
-    <h3 id="countryName"></h3>
-    <p>Население: <span id="pop"></span></p>
-    <p>Золото: <span id="gold"></span></p>
-    <p>Армия: <span id="army"></span></p>
-    <p>Стабильность: <span id="stability"></span></p>
-
-<button onclick="recruitArmy()">
-    Нанять войска (-5 золота)
-</button>
-
-<hr>
-
-<h3>
-    <button onclick="toggleConstruction()">
-        Строительство
-    </button>
-</h3>
-
-<div id="constructionPanel" style="display:none; margin-top:15px;">
-    <div id="constructionCategories"></div>
-    <div id="constructionMenu" style="margin-top:15px;"></div>
-</div>
-
-<hr>
-
-<h3>Дипломатия</h3>
-
-<select id="diplomacyTarget" onchange="updateRelationDisplay()"></select>
-
-<p>Отношения: <span id="relationValue"></span></p>
-
-<button onclick="improveRelations()">Улучшить отношения (-5 золота)</button>
-<button onclick="insultCountry()">Оскорбить</button>
-
-<div id="chatBox"
-     style="
-        margin-top:20px;
-        height:180px;
-        overflow-y:auto;
-        border:1px solid #444;
-        padding:10px;
-     ">
-</div>
-
-<button onclick="toggleHistory()" style="margin-top:10px;">
-    История сообщений
-</button>
-
-<div id="historyPanel"
-     style="
-        display:none;
-        margin-top:15px;
-        max-height:250px;
-        overflow-y:auto;
-        border:1px solid #666;
-        padding:10px;
-        background:#1a1a1a;
-     ">
-</div>
-<select id="timeStep">
-    <option value="1">1 день</option>
-    <option value="7">1 неделя</option>
-    <option value="30">1 месяц</option>
-    <option value="90">3 месяца</option>
-    <option value="180">6 месяцев</option>
-    <option value="365">1 год</option>
-</select>
-<button onclick="nextTurn()" style="margin-top:20px;">
-    Следующий ход
-</button>
+    <main id="main-view">
+        <div id="map-or-diplomacy" class="panel" style="flex-grow: 1;">
+            <h3>Мировые новости</h3>
+            <div id="log"></div>
+        </div>
+        
+        <div class="panel">
+            <select id="time-step">
+                <option value="1">1 день</option>
+                <option value="7">1 неделя</option>
+                <option value="30">1 месяц</option>
+            </select>
+            <button class="btn-primary" onclick="engine.nextTurn()">СЛЕДУЮЩИЙ ХОД</button>
+        </div>
+    </main>
 </div>
 
 <script>
-const months = [
-    "Январь", "Февраль", "Март", "Апрель",
-    "Май", "Июнь", "Июль", "Август",
-    "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-];
-function isLeapYear(year) {
-    return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-}
-
-function getDaysInMonth(month, year) {
-
-    const daysInMonths = [
-        31,
-        isLeapYear(year) ? 29 : 28,
-        31,
-        30,
-        31,
-        30,
-        31,
-        31,
-        30,
-        31,
-        30,
-        31
-    ];
-
-    return daysInMonths[month - 1];
-}
-
-function advanceTime(days) {
-
-    while (days > 0) {
-
-        let daysThisMonth = getDaysInMonth(game.date.month, game.date.year);
-
-        let remainingDaysInMonth = daysThisMonth - game.date.day;
-
-        if (days <= remainingDaysInMonth) {
-            game.date.day += days;
-            days = 0;
-        } else {
-            days -= (remainingDaysInMonth + 1);
-            game.date.day = 1;
-            game.date.month++;
-
-            if (game.date.month > 12) {
-                game.date.month = 1;
-                game.date.year++;
-            }
-        }
-    }
-}
-const game = {
-    date: {
-        day: 1,
-        month: 1,
-        year: 500
-    },
-    selectedCountry: "Valoria",
-    countries: {},
-    ui: {
-    constructionOpen: false,
-    selectedCategory: null
-}
-};
-const buildingCatalog = {
-
-    // 🪖 Военное
-    barracks: {
-        name: "Казармы",
-        category: "Военное",
-        cost: 18,
-        buildTime: 60
-    },
-
-    armory: {
-        name: "Арсенал",
-        category: "Военное",
-        cost: 22,
-        buildTime: 75
-    },
-
-    fortress: {
-        name: "Крепость",
-        category: "Военное",
-        cost: 30,
-        buildTime: 120
-    },
-
-
-    // 🎓 Образование
-    school: {
-        name: "Школа",
-        category: "Образование",
-        cost: 16,
-        buildTime: 50
-    },
-
-    university: {
-        name: "Университет",
-        category: "Образование",
-        cost: 28,
-        buildTime: 100
-    },
-
-
-    // 🎭 Культура
-    theater: {
-        name: "Театр",
-        category: "Культура",
-        cost: 12,
-        buildTime: 40
-    },
-
-    monument: {
-        name: "Монумент",
-        category: "Культура",
-        cost: 20,
-        buildTime: 70
-    },
-
-
-    // 💰 Экономика
-    market: {
-        name: "Рынок",
-        category: "Экономика",
-        cost: 14,
-        buildTime: 35
-    },
-
-    bank: {
-        name: "Банк",
-        category: "Экономика",
-        cost: 26,
-        buildTime: 80
-    },
-
-
-    // ⛏ Ресурсы
-    farm: {
-        name: "Ферма",
-        category: "Ресурсы",
-        cost: 10,
-        buildTime: 30
-    },
-
-    mine: {
-        name: "Шахта",
-        category: "Ресурсы",
-        cost: 15,
-        buildTime: 45
-    },
-
-    lumbermill: {
-        name: "Лесопилка",
-        category: "Ресурсы",
-        cost: 17,
-        buildTime: 50
+// 1. Все данные игры хранятся здесь
+const world = {
+    date: { day: 1, month: 0, year: 500 },
+    months: ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"],
+    playerCountry: "Valoria",
+    countries: {
+        "Valoria": { pop: 10000, gold: 50, army: 100, stab: 85, buildings: {}, relations: {} },
+        "Norvind": { pop: 12000, gold: 40, army: 200, stab: 80, buildings: {}, relations: {} },
+        "Kharad":  { pop: 8000,  gold: 60, army: 50,  stab: 90, buildings: {}, relations: {} },
+        "Elyndor": { pop: 9500,  gold: 45, army: 120, stab: 88, buildings: {}, relations: {} }
     }
 };
-    function startConstruction(buildingKey) {
-    let country = game.countries[game.selectedCountry];
-    let building = buildingCatalog[buildingKey];
 
-    if (country.gold < building.cost) {
-        alert("Недостаточно золота!");
-        return;
-    }
-
-    country.gold -= building.cost;
-
-    country.constructionQueue.push({
-        key: buildingKey,
-        daysLeft: building.buildTime
-    });
-
-    addChatMessage(`Начато строительство: ${building.name}`);
-}
-function createCountry(name) {
-    return {
-        name,
-        population: 10,
-        gold: 20,
-        army: 5,
-        stability: 80,
-        tech: 10,
-        relations: {},
-        allianceOffered: false,
-        allied: false,
-
-        buildings: {},           // построенные здания
-        constructionQueue: []    // очередь строительства
-    };
-}
-
-game.countries = {
-    Valoria: createCountry("Valoria"),
-    Norvind: createCountry("Norvind"),
-    Kharad: createCountry("Kharad"),
-    Elyndor: createCountry("Elyndor"),
-    Zareth: createCountry("Zareth")
-};
-
-// Инициализация отношений
-for (let name in game.countries) {
-    for (let other in game.countries) {
+// 2. Инициализация отношений (запускается один раз при старте)
+for (let name in world.countries) {
+    for (let other in world.countries) {
         if (name !== other) {
-            game.countries[name].relations[other] =
-                Math.floor(Math.random() * 40) - 20; // от -20 до +20
+            world.countries[name].relations[other] = Math.floor(Math.random() * 40) - 20; 
         }
     }
 }
 
-function nextTurn() {
-
-    let days = parseInt(document.getElementById("timeStep").value);
-
-    // --- Экономика и развитие по дням ---
-    for (let d = 0; d < days; d++) {
-
-        for (let name in game.countries) {
-            let c = game.countries[name];
-// обработка строительства
-for (let i = c.constructionQueue.length - 1; i >= 0; i--) {
-    let item = c.constructionQueue[i];
-    item.daysLeft--;
-
-    if (item.daysLeft <= 0) {
-        let key = item.key;
-
-        c.buildings[key] = (c.buildings[key] || 0) + 1;
-
-        addChatMessage(`${buildingCatalog[key].name} построено!`);
-
-        c.constructionQueue.splice(i, 1);
-    }
-}
-            // 📈 Доход за день
-            let incomePerDay = (c.population * 0.4) / 365;
-            let armyCostPerDay = (c.army * 0.3) / 365;
-
-            c.gold += incomePerDay - armyCostPerDay;
-
-            // 👥 Рост населения (1.5% в год)
-            c.population += (c.population * 0.015) / 365;
-
-            // ⚖ Стабильность падает при отрицательном золоте
-            if (c.gold < 0) {
-                c.stability -= 5 / 365;
-            }
-
-            // 🔥 Мятеж
-            if (c.stability < 30) {
-                c.army = Math.max(1, c.army - (1 / 365));
-            }
+// 3. Главный движок игры
+const engine = {
+    // Переход на следующий ход
+    nextTurn() {
+        const steps = parseInt(document.getElementById('time-step').value);
+        
+        for (let i = 0; i < steps; i++) {
+            this.processDay();
         }
-    }
+        this.updateUI();
+    },
 
-    // 📅 Двигаем календарь
-    advanceTime(days);
+    // Логика каждого дня
+    processDay() {
+        world.date.day++;
+        if (world.date.day > 30) { 
+            world.date.day = 1;
+            world.date.month++;
+            if (world.date.month > 11) {
+                world.date.month = 0;
+                world.date.year++;
+            }
+            this.processMonth(); // Экономика и ИИ считаются раз в месяц
+        }
+    },
 
-    // 🔥 Реакция ИИ каждый ход
-    for (let name in game.countries) {
-        if (name !== game.selectedCountry) {
+    // Логика каждого месяца
+    processMonth() {
+        for (let name in world.countries) {
+            let c = world.countries[name];
+            
+            // Простая экономика: доход от людей - расходы на армию
+            let income = (c.pop * 0.01); 
+            let upkeep = (c.army * 0.05);
+            c.gold += (income - upkeep);
+            
+            c.pop += Math.floor(c.pop * 0.001); // Прирост населения
 
-            if (Math.random() < 0.3) {
+            // Здесь в будущем будет вызов ИИ
+        }
+    },
 
-                let change = Math.floor(Math.random() * 11) - 5;
+    // Обновление всего, что видит игрок на экране
+    updateUI() {
+        const p = world.countries[world.playerCountry];
+        
+        // Дата и название страны
+        document.getElementById('current-date').innerText = `${world.date.day} ${world.months[world.date.month]} ${world.date.year} г.`;
+        document.getElementById('player-country-name').innerText = world.playerCountry;
+        
+        // Статистика в шапке и боковой панели
+        document.getElementById('top-gold').innerText = p.gold.toFixed(1);
+        document.getElementById('stat-pop').innerText = p.pop.toLocaleString();
+        document.getElementById('stat-army').innerText = p.army;
+        document.getElementById('stat-stab').innerText = p.stab + "%";
+        
+        // Расчет месячного баланса для интерфейса
+        let monthlyBalance = (p.pop * 0.01) - (p.army * 0.05);
+        document.getElementById('stat-income').innerText = (monthlyBalance >= 0 ? "+" : "") + monthlyBalance.toFixed(1);
 
-                game.countries[name].relations[game.selectedCountry] += change;
-                game.countries[game.selectedCountry].relations[name] += change;
+        // Обновление списка дипломатии (создаем опции, если их нет)
+        this.syncDiplomacyList();
+    },
 
-                if (change > 0) {
-                    addChatMessage(name + " улучшает отношения с вами.");
-                }
+    syncDiplomacyList() {
+        const dipSelect = document.getElementById('dip-target');
+        if (!dipSelect) return;
 
-                if (change < 0) {
-                    addChatMessage(name + " ухудшает отношения с вами.");
-                }
-
-                let relation =
-                    game.countries[game.selectedCountry].relations[name];
-
-                if (relation > 60 && !game.countries[name].allianceOffered) {
-                    game.countries[name].allianceOffered = true;
-                    addAllianceMessage(name);
-                }
-
-                if (relation < -60) {
-                    addChatMessage(name + " готовится к конфликту.");
+        if (dipSelect.options.length === 0) {
+            for (let name in world.countries) {
+                if (name !== world.playerCountry) {
+                    let opt = document.createElement('option');
+                    opt.value = name;
+                    opt.innerText = name;
+                    dipSelect.appendChild(opt);
                 }
             }
         }
-    }
-
-    render();
-}
-function addAllianceMessage(countryName) {
-
-    let chat = document.getElementById("chatBox");
-
-    let block = document.createElement("div");
-
-    block.innerHTML = `
-        <p>${countryName} предлагает вам союз.</p>
-        <button onclick="acceptAlliance('${countryName}')">Принять</button>
-        <button onclick="rejectAlliance('${countryName}')">Отклонить</button>
-    `;
-
-    chat.append(block);
-    chat.scrollTop = chat.scrollHeight;
-
-    messageHistory.push(countryName + " предлагает вам союз.");
-
-    if (chat.children.length > 15) {
-        chat.removeChild(chat.firstChild);
-    }
-
-    updateHistoryPanel();
-}
-    function acceptAlliance(name) {
-    let player = game.countries[game.selectedCountry];
-    let other = game.countries[name];
-
-    player.relations[name] = 100;
-    other.relations[game.selectedCountry] = 100;
-
-    other.allianceOffered = false;
-
-    addChatMessage(name + " теперь ваш союзник!");
-
-    render();
-}
-
-function rejectAlliance(name) {
-    let player = game.countries[game.selectedCountry];
-    let other = game.countries[name];
-
-    player.relations[name] -= 20;
-    other.relations[game.selectedCountry] -= 20;
-
-    other.allianceOffered = false;
-
-    addChatMessage("Вы отказались от союза с " + name + ".");
-
-    render();
-}
-function recruitArmy() {
-    let c = game.countries[game.selectedCountry];
-
-    if (c.gold >= 5) {
-        c.gold -= 5;
-        c.army += 1;
-    }
-
-    render();
-}
-function renderConstructionMenu() {
-
-    const menu = document.getElementById("constructionMenu");
-    if (!menu) return;
-
-    menu.innerHTML = "";
-
-    for (let key in buildingCatalog) {
-
-        let building = buildingCatalog[key];
-
-        let btn = document.createElement("button");
-        btn.innerText = `${building.name} (${building.cost} золота)`;
-        btn.onclick = () => startConstruction(key);
-
-        menu.appendChild(btn);
-        menu.appendChild(document.createElement("br"));
-    }
-}
-function toggleConstruction() {
-    const panel = document.getElementById("constructionPanel");
-
-    game.ui.constructionOpen = !game.ui.constructionOpen;
-
-    panel.style.display = game.ui.constructionOpen ? "block" : "none";
-
-    if (game.ui.constructionOpen) {
-        renderConstructionCategories();
-    }
-}
-
-function renderConstructionCategories() {
-    const categoriesDiv = document.getElementById("constructionCategories");
-    categoriesDiv.innerHTML = "";
-
-    const categories = [...new Set(
-        Object.values(buildingCatalog).map(b => b.category)
-    )];
-
-    categories.forEach(cat => {
-        const btn = document.createElement("button");
-        btn.innerText = cat;
-        btn.onclick = () => renderBuildingsByCategory(cat);
-        categoriesDiv.appendChild(btn);
-        categoriesDiv.appendChild(document.createElement("br"));
-    });
-}
-
-function renderBuildingsByCategory(category) {
-    game.ui.selectedCategory = category;
-
-    const menu = document.getElementById("constructionMenu");
-    menu.innerHTML = "";
-
-    for (let key in buildingCatalog) {
-        let building = buildingCatalog[key];
-
-        if (building.category === category) {
-            let btn = document.createElement("button");
-            btn.innerText = `${building.name} (${building.cost} золота)`;
-            btn.onclick = () => startConstruction(key);
-
-            menu.appendChild(btn);
-            menu.appendChild(document.createElement("br"));
+        
+        // Показ отношений с выбранной страной
+        let target = dipSelect.value;
+        if (target) {
+            document.getElementById('dip-rel-val').innerText = world.countries[world.playerCountry].relations[target];
         }
     }
-}
-function render() {
-    const c = game.countries[game.selectedCountry];
+};
 
-    document.getElementById("year").innerText =
-    game.date.day + " " +
-    months[game.date.month - 1] + " " +
-    game.date.year;
-    document.getElementById("countryName").innerText = c.name;
-    document.getElementById("pop").innerText = c.population.toFixed(1);
-
-// 📊 Месячный баланс
-let monthlyIncome = (c.population * 0.4) / 12;
-let monthlyArmyCost = (c.army * 0.3) / 12;
-let monthlyBalance = monthlyIncome - monthlyArmyCost;
-
-let goldText = c.gold.toFixed(2);
-
-let balanceText = monthlyBalance >= 0
-    ? `(+${monthlyBalance.toFixed(2)} / мес)`
-    : `(${monthlyBalance.toFixed(2)} / мес)`;
-
-document.getElementById("gold").innerText =
-    `${goldText} ${balanceText}`;
-
-document.getElementById("army").innerText = c.army;
-    document.getElementById("stability").innerText = c.stability.toFixed(0);
-// Восстановление состояния строительства
-const panel = document.getElementById("constructionPanel");
-
-if (game.ui.constructionOpen) {
-    panel.style.display = "block";
-    renderConstructionCategories();
-
-    if (game.ui.selectedCategory) {
-        renderBuildingsByCategory(game.ui.selectedCategory);
-    }
-} else {
-    panel.style.display = "none";
-}
-}
-   // Эта функция теперь только обновляет текст отношений, не пересоздавая список
-function updateDiplomacyUI() {
-    updateRelationDisplay();
+// 4. Лог событий (текстовое поле)
+function logEvent(text) {
+    const logDiv = document.getElementById('log');
+    if (!logDiv) return;
+    const entry = document.createElement('div');
+    entry.className = 'event-new';
+    entry.innerText = `[${world.date.year}] ${text}`;
+    logDiv.prepend(entry);
 }
 
-// Новая функция: создает список стран один раз при старте
-function initDiplomacyList() {
-    const select = document.getElementById("diplomacyTarget");
-    if (!select) return;
-
-    select.innerHTML = ""; 
-
-    for (let name in game.countries) {
-        if (name !== game.selectedCountry) {
-            let option = document.createElement("option");
-            option.value = name;
-            option.textContent = name;
-            select.appendChild(option);
-        }
-    }
-    updateRelationDisplay();
-}
-
-function updateRelationDisplay() {
-    let target = document.getElementById("diplomacyTarget").value;
-    // Проверка на случай, если цель еще не выбрана
-    if (!target) return;
-    
-    let relation = game.countries[game.selectedCountry].relations[target];
-    document.getElementById("relationValue").innerText = relation;
-}
-
-function improveRelations() {
-    let player = game.countries[game.selectedCountry];
-    let target = document.getElementById("diplomacyTarget").value;
-
-    if (player.gold >= 5) {
-        player.gold -= 5;
-        player.relations[target] += 10;
-
-        addChatMessage(target + " благодарит вас за поддержку.");
-    }
-
-    render();
-    updateDiplomacyUI();
-}
-
-function insultCountry() {
-    let player = game.countries[game.selectedCountry];
-    let target = document.getElementById("diplomacyTarget").value;
-
-    player.relations[target] -= 15;
-
-    addChatMessage(target + " возмущены вашим поведением!");
-
-    updateRelationDisplay();
-}
-
-let messageHistory = [];
-
-function addChatMessage(text) {
-    let chat = document.getElementById("chatBox");
-
-    let p = document.createElement("p");
-    p.innerText = text;
-
-    chat.append(p);
-    chat.scrollTop = chat.scrollHeight;
-
-    messageHistory.push(text);
-
-    // лимит 15 сообщений в основном чате
-    if (chat.children.length > 15) {
-        chat.removeChild(chat.firstChild);
-    }
-
-    updateHistoryPanel();
-}
-render();
-function updateHistoryPanel() {
-    let panel = document.getElementById("historyPanel");
-    panel.innerHTML = "";
-
-    messageHistory.slice().reverse().forEach(msg => {
-        let p = document.createElement("p");
-        p.innerText = msg;
-        panel.appendChild(p);
-    });
-}
-
-function toggleHistory() {
-    let panel = document.getElementById("historyPanel");
-
-    if (panel.style.display === "none") {
-        panel.style.display = "block";
-    } else {
-        panel.style.display = "none";
-    }
-}
+// 5. САМЫЙ ВАЖНЫЙ МОМЕНТ: Первичный запуск
+window.onload = () => {
+    engine.updateUI();
+    logEvent("Мир вступил в эпоху 500-го года. Ваше правление началось.");
+};
 </script>
-
 </body>
 </html>
