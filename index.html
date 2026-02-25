@@ -66,15 +66,20 @@
 
 <script>
 // 1. Все данные игры хранятся здесь
-const world = {
+const buildingCatalog = {
+    market: { name: "Рынок", cost: 30, time: 60, effect: "income", value: 0.5, desc: "+0.5 золота/мес" },
+    barracks: { name: "Казармы", cost: 40, time: 90, effect: "upkeep", value: 0.2, desc: "-20% цена армии" },
+    farm: { name: "Ферма", cost: 20, time: 45, effect: "pop", value: 0.002, desc: "+0.2% рост населения" }
+};
+    const world = {
     date: { day: 1, month: 0, year: 500 },
     months: ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"],
     playerCountry: "Valoria",
     countries: {
-        "Valoria": { pop: 10000, gold: 50, army: 100, stab: 85, buildings: {}, relations: {} },
-        "Norvind": { pop: 12000, gold: 40, army: 200, stab: 80, buildings: {}, relations: {} },
-        "Kharad":  { pop: 8000,  gold: 60, army: 50,  stab: 90, buildings: {}, relations: {} },
-        "Elyndor": { pop: 9500,  gold: 45, army: 120, stab: 88, buildings: {}, relations: {} }
+        "Valoria": { pop: 10000, gold: 50, army: 100, stab: 85, buildings: {}, constructionQueue: [], relations: {} },
+        "Norvind": { pop: 12000, gold: 40, army: 200, stab: 80, buildings: {}, constructionQueue: [], relations: {} },
+        "Kharad":  { pop: 8000,  gold: 60, army: 50,  stab: 90, buildings: {}, constructionQueue: [], relations: {} },
+        "Elyndor": { pop: 9500,  gold: 45, army: 120, stab: 88, buildings: {}, constructionQueue: [], relations: {} }
     }
 };
 
@@ -99,19 +104,39 @@ const engine = {
         this.updateUI();
     },
 
-    // Логика каждого дня
     processDay() {
-        world.date.day++;
-        if (world.date.day > 30) { 
-            world.date.day = 1;
-            world.date.month++;
-            if (world.date.month > 11) {
-                world.date.month = 0;
-                world.date.year++;
+    world.date.day++;
+    
+    // Проходим по всем странам и двигаем стройку (Шаг 3.4)
+    for (let name in world.countries) {
+        let c = world.countries[name];
+        // Идем по очереди с конца к началу
+        for (let i = c.constructionQueue.length - 1; i >= 0; i--) {
+            let job = c.constructionQueue[i];
+            job.daysLeft--; // Уменьшаем время стройки на 1 день
+
+            if (job.daysLeft <= 0) {
+                let bId = job.id;
+                // Добавляем готовое здание в список страны
+                c.buildings[bId] = (c.buildings[bId] || 0) + 1;
+                // Удаляем из очереди
+                c.constructionQueue.splice(i, 1);
+                
+                if (name === world.playerCountry) {
+                    logEvent(`Ура! Постройка ${buildingCatalog[bId].name} завершена.`);
+                }
             }
-            this.processMonth(); // Экономика и ИИ считаются раз в месяц
         }
-    },
+    }
+
+    // Логика смены месяца (у тебя она уже есть)
+    if (world.date.day > 30) {
+        world.date.day = 1;
+        world.date.month++;
+        // ... и так далее ...
+        this.processMonth();
+    }
+}
 
     // Логика каждого месяца
   processMonth() {
@@ -233,7 +258,50 @@ function runAIBehavior() {
 }
 
 // === КОНЕЦ ВСТАВКИ ===
+<div id="build-modal" class="panel" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:100; width:400px; background:#1a1a20; border:2px solid #ff5722; padding:20px; box-shadow: 0 0 20px #000;">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #444; pb: 10px;">
+        <h3 style="margin:0;">Доступные постройки</h3>
+        <button onclick="closeConstruction()" style="background:none; border:none; color:red; font-size:20px; cursor:pointer; margin:0; padding:0;">✖</button>
+    </div>
+    <div id="build-list" style="margin-top:15px; max-height: 300px; overflow-y: auto;">
+        </div>
+</div>
+ function openConstruction() {
+    document.getElementById('build-modal').style.display = 'block';
+    const list = document.getElementById('build-list');
+    list.innerHTML = '';
 
+    for (let id in buildingCatalog) {
+        let b = buildingCatalog[id];
+        let btn = document.createElement('button');
+        btn.style.width = "100%";
+        btn.style.textAlign = "left";
+        btn.style.marginBottom = "10px";
+        btn.style.padding = "10px";
+        btn.innerHTML = `<b>${b.name}</b> <span style="float:right">${b.cost} золота</span><br><small>${b.desc}</small>`;
+        btn.onclick = () => startBuilding(id);
+        list.appendChild(btn);
+    }
+}
+
+function closeConstruction() {
+    document.getElementById('build-modal').style.display = 'none';
+}
+
+function startBuilding(id) {
+    let p = world.countries[world.playerCountry];
+    let b = buildingCatalog[id];
+
+    if (p.gold >= b.cost) {
+        p.gold -= b.cost;
+        p.constructionQueue.push({ id: id, daysLeft: b.time });
+        logEvent(`Начато строительство: ${b.name}. Будет готово через ${b.time} дн.`);
+        closeConstruction();
+        engine.updateUI();
+    } else {
+        logEvent("Недостаточно золота для начала стройки!");
+    }
+}   
 // 5. САМЫЙ ВАЖНЫЙ МОМЕНТ: Первичный запуск
 window.onload = () => {
     engine.updateUI();
